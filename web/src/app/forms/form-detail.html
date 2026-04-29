@@ -1,0 +1,68 @@
+<div class="container">
+  @if (form(); as f) {
+    <div class="top-bar">
+      <h1>{{ f.name }}</h1>
+      <div class="actions">
+        <a [routerLink]="['/forms', f.id, 'submit']" class="btn primary">Fill Form</a>
+        <a [routerLink]="['/forms', f.id, 'edit']" class="btn">Edit</a>
+        <a routerLink="/forms" class="btn">Back</a>
+      </div>
+    </div>
+
+    @if (f.description) {
+      <p style="margin-bottom: 16px; color: #6b7280;">{{ f.description }}</p>
+    }
+
+    <h2>Questions</h2>
+    @if (f.questions?.length) {
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Label</th>
+            <th>Type</th>
+            <th>Required</th>
+            <th>Options</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (q of sortedQuestions(f); track q.id) {
+            <tr>
+              <td>{{ q.order + 1 }}</td>
+              <td>{{ q.label }}</td>
+              <td><span class="badge">{{ q.type }}</span></td>
+              <td>{{ q.required ? 'Yes' : '' }}</td>
+              <td>{{ q.config?.['options']?.join(', ') || '-' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="card empty">No questions yet.</div>
+    }
+
+    @if (rules().length) {
+      <h2 style="margin-top: 24px;">Rules</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Contains</th>
+            <th>Enable</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of rules(); track r.id) {
+            <tr>
+              <td>{{ questionLabel(r.sourceQuestionId) }}</td>
+              <td>{{ r.triggerValue }}</td>
+              <td>{{ questionLabel(r.targetQuestionId) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  } @else {
+    <div class="container empty">Loading...</div>
+  }
+</div>

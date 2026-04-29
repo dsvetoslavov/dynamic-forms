@@ -1,0 +1,83 @@
+<div class="container">
+  @if (form(); as f) {
+    <div class="top-bar">
+      <h1>{{ f.name }}</h1>
+      <a [routerLink]="['/forms', f.id]" class="btn">Back</a>
+    </div>
+
+    @if (f.description) {
+      <p style="margin-bottom: 16px; color: #6b7280;">{{ f.description }}</p>
+    }
+
+    @if (submitted()) {
+      <div class="success-msg">Submitted successfully!</div>
+      <div class="actions">
+        <a routerLink="/forms" class="btn">Back to Forms</a>
+        <button class="btn primary" (click)="reset()">Submit Another</button>
+      </div>
+    } @else {
+      <div class="card">
+        <div class="form-group">
+          <label for="username">Your Name</label>
+          <input id="username" [(ngModel)]="username" placeholder="Enter your name" />
+        </div>
+
+        @for (q of visibleQuestions(); track q.id) {
+          <div class="form-group">
+            <label>
+              {{ q.label }}
+              @if (q.required) { <span style="color: #dc2626;">*</span> }
+            </label>
+
+            @switch (q.type) {
+              @case ('text') {
+                <input [ngModel]="answers()[q.id!]" (ngModelChange)="updateAnswer(q.id!, $event)" />
+              }
+              @case ('number') {
+                <input type="number" [ngModel]="answers()[q.id!]" (ngModelChange)="updateAnswer(q.id!, $event)" />
+              }
+              @case ('yes_no') {
+                <select [ngModel]="answers()[q.id!]" (ngModelChange)="updateAnswer(q.id!, $event)">
+                  <option value="">-- Select --</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              }
+              @case ('select') {
+                <select [ngModel]="answers()[q.id!]" (ngModelChange)="updateAnswer(q.id!, $event)">
+                  <option value="">-- Select --</option>
+                  @for (opt of q.config?.['options'] || []; track opt) {
+                    <option [value]="opt">{{ opt }}</option>
+                  }
+                </select>
+              }
+              @case ('multi_select') {
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                  @for (opt of q.config?.['options'] || []; track opt) {
+                    <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                      <input type="checkbox"
+                        [checked]="isChecked(q.id!, opt)"
+                        (change)="toggleMulti(q.id!, opt)" />
+                      {{ opt }}
+                    </label>
+                  }
+                </div>
+              }
+            }
+          </div>
+        }
+
+        @if (error()) {
+          <div class="error-msg">{{ error() }}</div>
+        }
+
+        <div class="actions" style="margin-top: 16px;">
+          <button class="btn primary" (click)="submit()">Submit</button>
+          <a [routerLink]="['/forms', f.id]" class="btn">Cancel</a>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="container empty">Loading...</div>
+  }
+</div>

@@ -1,0 +1,38 @@
+<div class="container">
+  <div class="top-bar">
+    <h1>Forms</h1>
+    <div class="actions">
+      <a routerLink="/submissions" class="btn">Submissions</a>
+      <a routerLink="/forms/new" class="btn primary">New Form</a>
+    </div>
+  </div>
+
+  @if (forms().length === 0) {
+    <div class="card empty">No forms yet. Create one to get started.</div>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Questions</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (form of forms(); track form.id) {
+          <tr>
+            <td><a [routerLink]="['/forms', form.id]">{{ form.name }}</a></td>
+            <td>{{ form.questions?.length || 0 }}</td>
+            <td>{{ form.createdAt | date }}</td>
+            <td class="actions">
+              <a [routerLink]="['/forms', form.id, 'edit']" class="btn sm">Edit</a>
+              <a [routerLink]="['/forms', form.id, 'submit']" class="btn sm primary">Fill</a>
+              <button class="btn sm danger" (click)="deleteForm(form)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

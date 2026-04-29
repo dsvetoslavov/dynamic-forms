@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="top-bar">
+    <h1>Submissions</h1>
+    <a routerLink="/forms" class="btn">Back to Forms</a>
+  </div>
+
+  @if (submissions().length === 0) {
+    <div class="card empty">No submissions yet.</div>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Answers</th>
+          <th>Submitted</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sub of submissions(); track sub.id) {
+          <tr>
+            <td>{{ sub.username }}</td>
+            <td>{{ sub.answers?.length || 0 }}</td>
+            <td>{{ sub.submittedAt | date }}</td>
+            <td class="actions">
+              <a [routerLink]="['/submissions', sub.id]" class="btn sm primary">Details</a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

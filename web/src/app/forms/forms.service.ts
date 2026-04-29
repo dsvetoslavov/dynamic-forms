@@ -1,0 +1,94 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+export interface Question {
+  id?: string;
+  type: string;
+  label: string;
+  order: number;
+  required: boolean;
+  config: Record<string, any>;
+}
+
+export interface Form {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  questions: Question[];
+}
+
+export interface Rule {
+  id: string;
+  formId: string;
+  sourceQuestionId: string;
+  operator: string;
+  triggerValue: string;
+  targetQuestionId: string;
+  action: string;
+}
+
+export interface SubmissionAnswer {
+  id: string;
+  questionId: string;
+  value: string;
+  question?: Question;
+}
+
+export interface Submission {
+  id: string;
+  formId: string;
+  username: string;
+  submittedAt: string;
+  answers: SubmissionAnswer[];
+}
+
+@Injectable({ providedIn: 'root' })
+export class FormsService {
+  private http = inject(HttpClient);
+
+  list() {
+    return this.http.get<Form[]>('/api/forms');
+  }
+
+  get(id: string) {
+    return this.http.get<Form>(`/api/forms/${id}`);
+  }
+
+  create(body: Partial<Form>) {
+    return this.http.post<Form>('/api/forms', body);
+  }
+
+  update(id: string, body: Partial<Form>) {
+    return this.http.put<Form>(`/api/forms/${id}`, body);
+  }
+
+  delete(id: string) {
+    return this.http.delete(`/api/forms/${id}`);
+  }
+
+  getRules(formId: string) {
+    return this.http.get<Rule[]>(`/api/forms/${formId}/rules`);
+  }
+
+  createRule(formId: string, body: Partial<Rule>) {
+    return this.http.post<Rule>(`/api/forms/${formId}/rules`, body);
+  }
+
+  deleteRule(formId: string, ruleId: string) {
+    return this.http.delete(`/api/forms/${formId}/rules/${ruleId}`);
+  }
+
+  submit(body: { formId: string; username: string; answers: { questionId: string; value: string }[] }) {
+    return this.http.post('/api/submissions', body);
+  }
+
+  listSubmissions() {
+    return this.http.get<Submission[]>('/api/submissions');
+  }
+
+  getSubmission(id: string) {
+    return this.http.get<Submission>(`/api/submissions/${id}`);
+  }
+}

@@ -1,0 +1,39 @@
+<div class="container">
+  @if (submission(); as sub) {
+    <div class="top-bar">
+      <h1>Submission</h1>
+      <div class="actions">
+        <a routerLink="/submissions" class="btn">Back</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 16px;">
+      <p><strong>Username:</strong> {{ sub.username }}</p>
+      <p><strong>Submitted:</strong> {{ sub.submittedAt | date:'medium' }}</p>
+    </div>
+
+    <h2>Questions &amp; Answers</h2>
+    @if (sub.answers?.length) {
+      <table>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of sub.answers; track a.id) {
+            <tr>
+              <td>{{ a.question?.label || a.questionId }}</td>
+              <td>{{ a.value }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="card empty">No answers recorded.</div>
+    }
+  } @else {
+    <div class="container empty">Loading...</div>
+  }
+</div>
