@@ -1,0 +1,19 @@
+# compiled output
+dist/
+
+# dependencies
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# env files
+.env
+.env.*
+
+# debug
+npm-debug.log*
