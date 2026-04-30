@@ -1,10 +1,19 @@
 erDiagram
+    flows ||--o{ flow_forms : ""
+    flows ||--o{ rules : "scopes"
+    flows ||--o{ flow_runs : "has"
+
+    flow_forms }o--|| forms: ""
+
     forms ||--o{ form_questions : "has"
 
     rules }o--|| form_questions : "source"
     rules }o--|| form_questions : "target"
 
+    flow_runs ||--o{ form_submissions : "ha"
+
     forms ||--o{ form_submissions : "has"
+
     form_submissions ||--o{ submission_answers : "has"
 
     submission_answers }o--|| form_questions: "answers"
@@ -34,6 +43,7 @@ erDiagram
 
     rules {
         uuid id PK
+        uuid flow_id FK
         uuid source_question_id FK
         string operator
         jsonb trigger_value
@@ -44,9 +54,19 @@ erDiagram
         timestamp deleted_at
     }
 
+    flow_runs {
+        uuid id PK
+        uuid flow_id FK
+        string username
+        string status "in_progress | completed"
+        timestamp started_at
+        timestamp completed_at "nullable"
+    }
+
     form_submissions {
         uuid id PK
         uuid form_id FK
+        uuid flow_run_id FK
         timestamp submitted_at
     }
 
@@ -56,4 +76,21 @@ erDiagram
         uuid question_id FK
         string question_type
         jsonb value
+    }
+
+
+    flow_forms {
+        uuid flow_id PK, FK
+        uuid form_id PK, FK
+        int order
+    }
+
+
+    flows {
+        uuid id PK
+        string name
+        string description
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_a
     }
