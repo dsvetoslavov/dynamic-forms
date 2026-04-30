@@ -42,34 +42,6 @@
             <input [(ngModel)]="q.optionsStr" placeholder="Option A, Option B, Option C" />
           </div>
         }
-
-        @if (!isNew() && q.id) {
-          <div style="border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 4px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span style="font-size: 0.8rem; font-weight: 500; color: #6b7280;">Condition</span>
-            </div>
-            @for (r of rulesForQuestion(q.id!); track r.id) {
-              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px; font-size: 0.85rem;">
-                <span><strong>{{ questionLabelById(r.sourceQuestionId) }}</strong> - <strong>{{ r.triggerValue }}</strong></span>
-                <button class="btn sm danger" (click)="deleteRule(r.id)">X</button>
-              </div>
-            }
-            <div style="display: flex; gap: 6px; align-items: end;">
-              <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                <select [(ngModel)]="newRuleDrafts[q.id!].sourceQuestionId" style="font-size: 0.85rem; padding: 4px 8px;">
-                  <option value="">Question...</option>
-                  @for (tq of otherQuestions(q.id!); track tq.id) {
-                    <option [value]="tq.id">{{ tq.label || '(untitled)' }}</option>
-                  }
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom: 0; flex: 1;">
-                <input [(ngModel)]="newRuleDrafts[q.id!].triggerValue" placeholder="Answer" style="font-size: 0.85rem; padding: 4px 8px;" />
-              </div>
-              <button class="btn sm primary" (click)="addRule(q.id!)">+</button>
-            </div>
-          </div>
-        }
       </div>
     }
 

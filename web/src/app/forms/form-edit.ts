@@ -18,7 +18,6 @@ export class FormEditComponent implements OnInit {
   description = '';
   questions = signal<QuestionDraft[]>([]);
   rules = signal<Rule[]>([]);
-  newRuleDrafts: Record<string, { triggerValue: string; sourceQuestionId: string }> = {};
   private formId = '';
   private nextIdx = 0;
 
@@ -38,20 +37,8 @@ export class FormEditComponent implements OnInit {
             optionsStr: q.config?.['options']?.join(', ') || '',
           }));
         this.questions.set(qs);
-        for (const q of qs) {
-          if (q.id) this.newRuleDrafts[q.id] = { triggerValue: '', sourceQuestionId: '' };
-        }
       });
-      this.loadRules();
     }
-  }
-
-  private loadRules() {
-    this.svc.getRules(this.formId).subscribe((r) => this.rules.set(r));
-  }
-
-  rulesForQuestion(questionId: string): Rule[] {
-    return this.rules().filter((r) => r.targetQuestionId === questionId);
   }
 
   otherQuestions(excludeId: string): QuestionDraft[] {
@@ -60,23 +47,6 @@ export class FormEditComponent implements OnInit {
 
   questionLabelById(id: string): string {
     return this.questions().find((q) => q.id === id)?.label || '(unknown)';
-  }
-
-  addRule(targetQuestionId: string) {
-    const draft = this.newRuleDrafts[targetQuestionId];
-    if (!draft?.triggerValue || !draft?.sourceQuestionId) return;
-    this.svc.createRule(this.formId, {
-      targetQuestionId,
-      triggerValue: draft.triggerValue,
-      sourceQuestionId: draft.sourceQuestionId,
-    }).subscribe(() => {
-      this.newRuleDrafts[targetQuestionId] = { triggerValue: '', sourceQuestionId: '' };
-      this.loadRules();
-    });
-  }
-
-  deleteRule(ruleId: string) {
-    this.svc.deleteRule(this.formId, ruleId).subscribe(() => this.loadRules());
   }
 
   addQuestion() {
