@@ -38,19 +38,4 @@ export class FormsController {
     return this.formsService.remove(id);
   }
 
-  // Rules
-  @Get(':formId/rules')
-  findRules(@Param('formId') formId: string) {
-    return this.formsService.findRulesByForm(formId);
-  }
-
-  @Post(':formId/rules')
-  createRule(@Param('formId') formId: string, @Body() body: any) {
-    return this.formsService.createRule({ ...body, formId });
-  }
-
-  @Delete(':formId/rules/:ruleId')
-  removeRule(@Param('ruleId') ruleId: string) {
-    return this.formsService.removeRule(ruleId);
-  }
 }

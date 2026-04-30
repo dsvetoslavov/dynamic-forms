@@ -1,27 +1,40 @@
 <div class="container">
-  @if (form(); as f) {
+  @if (flow(); as f) {
     <div class="top-bar">
       <h1>{{ f.name }}</h1>
-      <a [routerLink]="['/forms', f.id]" class="btn">Back</a>
+      <a routerLink="/flows" class="btn">Back</a>
     </div>
 
     @if (f.description) {
       <p style="margin-bottom: 16px; color: #6b7280;">{{ f.description }}</p>
     }
 
-    @if (submitted()) {
-      <div class="success-msg">Submitted successfully!</div>
-      <div class="actions">
-        <a routerLink="/forms" class="btn">Back to Forms</a>
-        <button class="btn primary" (click)="reset()">Submit Another</button>
-      </div>
-    } @else {
+    @if (step() === 'username') {
       <div class="card">
         <div class="form-group">
           <label for="username">Your Name</label>
           <input id="username" [(ngModel)]="username" placeholder="Enter your name" />
         </div>
 
+        @if (error()) {
+          <div class="error-msg">{{ error() }}</div>
+        }
+
+        <div class="actions" style="margin-top: 16px;">
+          <button class="btn primary" (click)="startFlow()">Start</button>
+          <a routerLink="/flows" class="btn">Cancel</a>
+        </div>
+      </div>
+    }
+
+    @if (step() === 'filling') {
+      <div style="margin-bottom: 16px; color: #6b7280;">
+        Form {{ currentFormIndex() + 1 }} of {{ totalForms() }}
+      </div>
+
+      <h2>{{ currentFormName() }}</h2>
+
+      <div class="card">
         @for (q of visibleQuestions(); track q.id) {
           <div class="form-group">
             <label>
@@ -72,9 +85,17 @@
         }
 
         <div class="actions" style="margin-top: 16px;">
-          <button class="btn primary" (click)="submit()">Submit</button>
-          <a [routerLink]="['/forms', f.id]" class="btn">Cancel</a>
+          <button class="btn primary" (click)="submitCurrentForm()">
+            @if (isLastForm) { Submit } @else { Next }
+          </button>
         </div>
+      </div>
+    }
+
+    @if (step() === 'complete') {
+      <div class="success-msg">Flow completed successfully!</div>
+      <div class="actions">
+        <a routerLink="/flows" class="btn">Back to Flows</a>
       </div>
     }
   } @else {

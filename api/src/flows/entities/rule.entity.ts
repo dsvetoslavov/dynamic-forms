@@ -4,17 +4,20 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { Form } from './form.entity';
-import { Question } from './question.entity';
+import { Flow } from './flow.entity';
+import { Question } from '../../forms/entities/question.entity';
 
 @Entity('rules')
 export class Rule {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'form_id' })
-  formId: string;
+  @Column({ name: 'flow_id' })
+  flowId: string;
 
   @Column({ name: 'source_question_id' })
   sourceQuestionId: string;
@@ -28,12 +31,21 @@ export class Rule {
   @Column({ name: 'target_question_id' })
   targetQuestionId: string;
 
-  @Column({ default: 'enable' })
-  action: string;
+  @Column({ name: 'action_type', default: 'enable_target' })
+  actionType: string;
 
-  @ManyToOne(() => Form, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'form_id' })
-  form: Form;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
+
+  @ManyToOne(() => Flow, (f) => f.rules, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'flow_id' })
+  flow: Flow;
 
   @ManyToOne(() => Question, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'source_question_id' })

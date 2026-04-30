@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FormsModule } from './forms/forms.module';
+import { FlowsModule } from './flows/flows.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { SubmissionsModule } from './submissions/submissions.module';
       synchronize: true,
     }),
     FormsModule,
+    FlowsModule,
     SubmissionsModule,
   ],
 })

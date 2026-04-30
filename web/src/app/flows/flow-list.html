@@ -1,0 +1,36 @@
+<div class="container">
+  <div class="top-bar">
+    <h1>Flows</h1>
+    <div class="actions">
+      <a routerLink="/forms" class="btn">Forms</a>
+      <a routerLink="/flows/new" class="btn primary">New Flow</a>
+    </div>
+  </div>
+
+  @if (flows().length === 0) {
+    <div class="card empty">No flows yet. Create one to get started.</div>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (flow of flows(); track flow.id) {
+          <tr>
+            <td><a [routerLink]="['/flows', flow.id]">{{ flow.name }}</a></td>
+            <td>{{ flow.createdAt | date }}</td>
+            <td class="actions">
+              <a [routerLink]="['/flows', flow.id, 'run']" class="btn sm primary">Start</a>
+              <a [routerLink]="['/flows', flow.id, 'edit']" class="btn sm">Edit</a>
+              <button class="btn sm danger" (click)="deleteFlow(flow)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

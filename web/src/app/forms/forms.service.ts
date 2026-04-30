@@ -80,10 +80,6 @@ export class FormsService {
     return this.http.delete(`/api/forms/${formId}/rules/${ruleId}`);
   }
 
-  submit(body: { formId: string; username: string; answers: { questionId: string; value: string }[] }) {
-    return this.http.post('/api/submissions', body);
-  }
-
   listSubmissions() {
     return this.http.get<Submission[]>('/api/submissions');
   }

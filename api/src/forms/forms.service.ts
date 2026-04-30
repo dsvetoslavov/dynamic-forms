@@ -3,14 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Form } from './entities/form.entity';
 import { Question } from './entities/question.entity';
-import { Rule } from './entities/rule.entity';
 
 @Injectable()
 export class FormsService {
   constructor(
     @InjectRepository(Form) private formsRepo: Repository<Form>,
     @InjectRepository(Question) private questionsRepo: Repository<Question>,
-    @InjectRepository(Rule) private rulesRepo: Repository<Rule>,
   ) {}
 
   findAll(): Promise<Form[]> {
@@ -40,20 +38,5 @@ export class FormsService {
   async remove(id: string): Promise<void> {
     const form = await this.findOne(id);
     await this.formsRepo.remove(form);
-  }
-
-  // Rules
-  findRulesByForm(formId: string): Promise<Rule[]> {
-    return this.rulesRepo.find({ where: { formId } });
-  }
-
-  createRule(data: Partial<Rule>): Promise<Rule> {
-    const rule = this.rulesRepo.create(data);
-    return this.rulesRepo.save(rule);
-  }
-
-  async removeRule(id: string): Promise<void> {
-    const result = await this.rulesRepo.delete(id);
-    if (result.affected === 0) throw new NotFoundException();
   }
 }

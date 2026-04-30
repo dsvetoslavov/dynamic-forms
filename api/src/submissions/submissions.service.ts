@@ -16,7 +16,7 @@ export class SubmissionsService {
   async findOne(id: string): Promise<Submission> {
     const sub = await this.repo.findOne({
       where: { id },
-      relations: ['answers'],
+      relations: ['answers', 'answers.question'],
     });
     if (!sub) throw new NotFoundException();
     return sub;

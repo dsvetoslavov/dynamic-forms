@@ -1,10 +1,11 @@
 <div class="container">
-  @if (form(); as f) {
+  @if (flow(); as f) {
     <div class="top-bar">
       <h1>{{ f.name }}</h1>
       <div class="actions">
-        <a [routerLink]="['/forms', f.id, 'edit']" class="btn">Edit</a>
-        <a routerLink="/forms" class="btn">Back</a>
+        <a [routerLink]="['/flows', f.id, 'run']" class="btn primary">Start Flow</a>
+        <a [routerLink]="['/flows', f.id, 'edit']" class="btn">Edit</a>
+        <a routerLink="/flows" class="btn">Back</a>
       </div>
     </div>
 
@@ -12,46 +13,40 @@
       <p style="margin-bottom: 16px; color: #6b7280;">{{ f.description }}</p>
     }
 
-    <h2>Questions</h2>
-    @if (f.questions?.length) {
+    <h2>Forms</h2>
+    @if (f.forms.length) {
       <table>
         <thead>
           <tr>
             <th>#</th>
-            <th>Label</th>
-            <th>Type</th>
-            <th>Required</th>
-            <th>Options</th>
+            <th>Form</th>
           </tr>
         </thead>
         <tbody>
-          @for (q of sortedQuestions(f); track q.id) {
+          @for (ff of f.forms; track ff.id) {
             <tr>
-              <td>{{ q.order + 1 }}</td>
-              <td>{{ q.label }}</td>
-              <td><span class="badge">{{ q.type }}</span></td>
-              <td>{{ q.required ? 'Yes' : '' }}</td>
-              <td>{{ q.config?.['options']?.join(', ') || '-' }}</td>
+              <td>{{ ff.order + 1 }}</td>
+              <td><a [routerLink]="['/forms', ff.id]">{{ ff.name }}</a></td>
             </tr>
           }
         </tbody>
       </table>
     } @else {
-      <div class="card empty">No questions yet.</div>
+      <div class="card empty">No forms in this flow.</div>
     }
 
-    @if (rules().length) {
+    @if (f.rules.length) {
       <h2 style="margin-top: 24px;">Rules</h2>
       <table>
         <thead>
           <tr>
             <th>When</th>
-            <th>Contains</th>
+            <th>Equals</th>
             <th>Enable</th>
           </tr>
         </thead>
         <tbody>
-          @for (r of rules(); track r.id) {
+          @for (r of f.rules; track r.id) {
             <tr>
               <td>{{ questionLabel(r.sourceQuestionId) }}</td>
               <td>{{ r.triggerValue }}</td>
