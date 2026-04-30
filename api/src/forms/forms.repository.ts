@@ -11,6 +11,7 @@ export interface FormsRepository {
   findOne(id: string): Promise<Form | null>;
   findByIds(ids: string[]): Promise<Form[]>;
   findQuestionsByIds(ids: string[]): Promise<Question[]>;
+  findQuestionsByFormId(formId: string): Promise<Question[]>;
   create(data: DeepPartial<Form>): Promise<Form>;
   update(form: Form, questionsToRemove: Question[]): Promise<Form>;
   softRemove(form: Form): Promise<void>;
@@ -38,6 +39,10 @@ export class TypeOrmFormsRepository implements FormsRepository {
 
   findQuestionsByIds(ids: string[]): Promise<Question[]> {
     return this.questionsRepo.find({ where: { id: In(ids) } });
+  }
+
+  findQuestionsByFormId(formId: string): Promise<Question[]> {
+    return this.questionsRepo.find({ where: { formId } });
   }
 
   async create(data: DeepPartial<Form>): Promise<Form> {

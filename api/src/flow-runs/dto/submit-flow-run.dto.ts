@@ -7,7 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class CreateAnswerDto {
+export class FlowRunAnswerDto {
   @IsUUID()
   questionId: string;
 
@@ -16,16 +16,12 @@ export class CreateAnswerDto {
   value: string;
 }
 
-export class CreateSubmissionDto {
+export class SubmitFlowRunDto {
   @IsUUID()
   formId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  username: string;
-
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateAnswerDto)
-  answers: CreateAnswerDto[];
+  @Type(() => FlowRunAnswerDto)
+  answers: FlowRunAnswerDto[];
 }

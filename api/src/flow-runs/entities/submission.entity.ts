@@ -8,7 +8,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Form } from '../../forms/entities/form.entity';
-import { Flow } from '../../flows/entities/flow.entity';
+import { FlowRun } from './flow-run.entity';
 import { Answer } from './answer.entity';
 
 @Entity('submissions')
@@ -19,11 +19,8 @@ export class Submission {
   @Column({ name: 'form_id' })
   formId: string;
 
-  @Column()
-  username: string;
-
-  @Column({ name: 'flow_id', nullable: true })
-  flowId: string | null;
+  @Column({ name: 'flow_run_id' })
+  flowRunId: string;
 
   @CreateDateColumn()
   submittedAt: Date;
@@ -32,9 +29,9 @@ export class Submission {
   @JoinColumn({ name: 'form_id' })
   form: Form;
 
-  @ManyToOne(() => Flow, { nullable: true })
-  @JoinColumn({ name: 'flow_id' })
-  flow: Flow;
+  @ManyToOne(() => FlowRun)
+  @JoinColumn({ name: 'flow_run_id' })
+  flowRun: FlowRun;
 
   @OneToMany(() => Answer, (a) => a.submission, { cascade: true })
   answers: Answer[];

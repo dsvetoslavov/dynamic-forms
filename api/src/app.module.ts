@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FormsModule } from './forms/forms.module';
 import { FlowsModule } from './flows/flows.module';
-import { SubmissionsModule } from './submissions/submissions.module';
+import { FlowRunsModule } from './flow-runs/flow-runs.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { SubmissionsModule } from './submissions/submissions.module';
     }),
     FormsModule,
     FlowsModule,
-    SubmissionsModule,
+    FlowRunsModule,
   ],
 })
 export class AppModule {}
