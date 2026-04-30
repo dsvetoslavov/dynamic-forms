@@ -8,30 +8,69 @@ import {
   Param,
 } from '@nestjs/common';
 import { FlowsService } from './flows.service';
-import { CreateFlowDto, UpdateFlowDto } from './dto';
+import { CreateFlowDto, UpdateFlowDto, FlowResponseDto, FlowDetailResponseDto } from './dto';
+import { Flow } from './entities/flow.entity';
+
+function toFlowResponse(flow: Flow): FlowResponseDto {
+  return {
+    id: flow.id,
+    name: flow.name,
+    description: flow.description,
+    createdAt: flow.createdAt,
+    updatedAt: flow.updatedAt,
+  };
+}
+
+function toFlowDetailResponse(flow: Flow): FlowDetailResponseDto {
+  return {
+    id: flow.id,
+    name: flow.name,
+    description: flow.description,
+    forms: flow.flowForms
+      ?.sort((a, b) => a.order - b.order)
+      .map((ff) => ({ id: ff.formId, name: ff.form.name, order: ff.order })) ?? [],
+    rules: flow.rules?.map((r) => ({
+      id: r.id,
+      flowId: r.flowId,
+      sourceQuestionId: r.sourceQuestionId,
+      operator: r.operator,
+      triggerValue: r.triggerValue,
+      targetQuestionId: r.targetQuestionId,
+      actionType: r.actionType,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    })) ?? [],
+    createdAt: flow.createdAt,
+    updatedAt: flow.updatedAt,
+  };
+}
 
 @Controller('flows')
 export class FlowsController {
   constructor(private readonly flowsService: FlowsService) {}
 
   @Get()
-  findAll() {
-    return this.flowsService.findAll();
+  async findAll(): Promise<FlowResponseDto[]> {
+    const flows = await this.flowsService.findAll();
+    return flows.map(toFlowResponse);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.flowsService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<FlowDetailResponseDto> {
+    const flow = await this.flowsService.findOne(id);
+    return toFlowDetailResponse(flow);
   }
 
   @Post()
-  create(@Body() body: CreateFlowDto) {
-    return this.flowsService.create(body);
+  async create(@Body() body: CreateFlowDto): Promise<FlowResponseDto> {
+    const flow = await this.flowsService.create(body);
+    return toFlowResponse(flow);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: UpdateFlowDto) {
-    return this.flowsService.update(id, body);
+  async update(@Param('id') id: string, @Body() body: UpdateFlowDto): Promise<FlowDetailResponseDto> {
+    const flow = await this.flowsService.update(id, body);
+    return toFlowDetailResponse(flow);
   }
 
   @Delete(':id')

@@ -34,7 +34,7 @@ export class FlowSubmissionsService {
 
     const enabled = evaluateRules(rules, answerContext, allQuestionIds);
 
-    return { enabledQuestionIds: [...enabled] };
+    return [...enabled];
   }
 
   async submit(flowId: string, body: CreateFlowSubmissionDto) {
@@ -84,31 +84,30 @@ export class FlowSubmissionsService {
     const currentIndex = sortedForms.findIndex((ff) => ff.formId === body.formId);
     const nextFlowForm = sortedForms[currentIndex + 1] ?? null;
 
-    const result: any = {
+    if (!nextFlowForm) {
+      return { submissionId: saved.id, isComplete: true as const };
+    }
+
+    const nextQuestions = await this.questionsRepo.find({
+      where: { formId: nextFlowForm.formId },
+    });
+    const nextAllIds = nextQuestions.map((q) => q.id);
+
+    // Re-evaluate with the just-submitted answers included
+    const updatedContext = { ...priorContext, ...currentAnswers };
+    const nextEnabled = evaluateRules(rules, updatedContext, nextAllIds);
+
+    return {
       submissionId: saved.id,
-      isComplete: !nextFlowForm,
-    };
-
-    if (nextFlowForm) {
-      const nextQuestions = await this.questionsRepo.find({
-        where: { formId: nextFlowForm.formId },
-      });
-      const nextAllIds = nextQuestions.map((q) => q.id);
-
-      // Re-evaluate with the just-submitted answers included
-      const updatedContext = { ...priorContext, ...currentAnswers };
-      const nextEnabled = evaluateRules(rules, updatedContext, nextAllIds);
-
-      result.nextForm = {
+      isComplete: false as const,
+      nextForm: {
         id: nextFlowForm.formId,
         name: nextFlowForm.form?.name ?? nextFlowForm.formId,
         order: nextFlowForm.order,
         questions: nextQuestions.sort((a, b) => a.order - b.order),
         enabledQuestionIds: [...nextEnabled],
-      };
-    }
-
-    return result;
+      },
+    };
   }
 
   private async loadFlowWithForms(flowId: string): Promise<Flow> {

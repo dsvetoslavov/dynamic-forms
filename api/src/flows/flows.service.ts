@@ -26,24 +26,13 @@ export class FlowsService {
     return this.flowsRepo.find();
   }
 
-  async findOne(id: string): Promise<any> {
+  async findOne(id: string): Promise<Flow> {
     const flow = await this.flowsRepo.findOne({
       where: { id },
       relations: ['flowForms', 'flowForms.form', 'rules'],
     });
     if (!flow) throw new NotFoundException();
-
-    return {
-      id: flow.id,
-      name: flow.name,
-      description: flow.description,
-      forms: flow.flowForms
-        .sort((a, b) => a.order - b.order)
-        .map((ff) => ({ id: ff.formId, name: ff.form.name, order: ff.order })),
-      rules: flow.rules,
-      createdAt: flow.createdAt,
-      updatedAt: flow.updatedAt,
-    };
+    return flow;
   }
 
   async create(data: CreateFlowDto) {
