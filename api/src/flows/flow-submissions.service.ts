@@ -11,6 +11,7 @@ import { Rule } from './entities/rule.entity';
 import { Submission } from '../submissions/entities/submission.entity';
 import { Question } from '../forms/entities/question.entity';
 import { evaluateRules } from './rule-engine';
+import { CreateFlowSubmissionDto } from './dto';
 
 @Injectable()
 export class FlowSubmissionsService {
@@ -36,10 +37,7 @@ export class FlowSubmissionsService {
     return { enabledQuestionIds: [...enabled] };
   }
 
-  async submit(
-    flowId: string,
-    body: { formId: string; username: string; answers: { questionId: string; value: string }[] },
-  ) {
+  async submit(flowId: string, body: CreateFlowSubmissionDto) {
     if (!body.formId) throw new BadRequestException('formId is required');
     if (!body.username?.trim()) throw new BadRequestException('username is required');
 

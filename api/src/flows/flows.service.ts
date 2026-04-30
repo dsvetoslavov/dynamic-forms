@@ -10,6 +10,7 @@ import { FlowForm } from './entities/flow-form.entity';
 import { Rule } from './entities/rule.entity';
 import { Question } from '../forms/entities/question.entity';
 import { Form } from '../forms/entities/form.entity';
+import { CreateFlowDto, UpdateFlowDto, CreateRuleDto } from './dto';
 
 @Injectable()
 export class FlowsService {
@@ -45,12 +46,7 @@ export class FlowsService {
     };
   }
 
-  async create(data: {
-    name: string;
-    description?: string;
-    formIds: string[];
-    rules?: any[];
-  }) {
+  async create(data: CreateFlowDto) {
     return this.dataSource.transaction(async (manager) => {
       const formOrderMap = await this.validateForms(data.formIds);
 
@@ -82,15 +78,7 @@ export class FlowsService {
     });
   }
 
-  async update(
-    id: string,
-    data: {
-      name?: string;
-      description?: string;
-      formIds: string[];
-      rules?: any[];
-    },
-  ) {
+  async update(id: string, data: UpdateFlowDto) {
     const existing = await this.flowsRepo.findOne({ where: { id } });
     if (!existing) throw new NotFoundException();
 
@@ -153,7 +141,7 @@ export class FlowsService {
   private async validateAndSaveRules(
     manager: any,
     flowId: string,
-    rules: any[],
+    rules: CreateRuleDto[],
     formOrderMap: Map<string, number>,
   ) {
     const questionIds = rules.flatMap((r) => [

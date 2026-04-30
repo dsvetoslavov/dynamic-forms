@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Param, Query, Body } from '@nestjs/common';
 import { FlowSubmissionsService } from './flow-submissions.service';
+import { CreateFlowSubmissionDto } from './dto';
 
 @Controller('flows/:flowId')
 export class FlowSubmissionsController {
@@ -17,7 +18,7 @@ export class FlowSubmissionsController {
   @Post('submissions')
   submit(
     @Param('flowId') flowId: string,
-    @Body() body: any,
+    @Body() body: CreateFlowSubmissionDto,
   ) {
     return this.svc.submit(flowId, body);
   }

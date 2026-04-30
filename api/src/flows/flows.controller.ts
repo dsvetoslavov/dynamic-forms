@@ -8,6 +8,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { FlowsService } from './flows.service';
+import { CreateFlowDto, UpdateFlowDto } from './dto';
 
 @Controller('flows')
 export class FlowsController {
@@ -24,12 +25,12 @@ export class FlowsController {
   }
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateFlowDto) {
     return this.flowsService.create(body);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: UpdateFlowDto) {
     return this.flowsService.update(id, body);
   }
 

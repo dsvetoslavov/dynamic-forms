@@ -8,6 +8,7 @@ import {
   Param,
 } from '@nestjs/common';
 import { FormsService } from './forms.service';
+import { CreateFormDto, UpdateFormDto } from './dto';
 
 @Controller('forms')
 export class FormsController {
@@ -24,12 +25,12 @@ export class FormsController {
   }
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateFormDto) {
     return this.formsService.create(body);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: any) {
+  update(@Param('id') id: string, @Body() body: UpdateFormDto) {
     return this.formsService.update(id, body);
   }
 

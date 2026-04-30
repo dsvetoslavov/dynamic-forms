@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
+import { CreateSubmissionDto } from './dto';
 
 @Controller('submissions')
 export class SubmissionsController {
@@ -16,7 +17,7 @@ export class SubmissionsController {
   }
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body: CreateSubmissionDto) {
     return this.service.create(body);
   }
 }

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Submission } from './entities/submission.entity';
+import { CreateSubmissionDto } from './dto';
 
 @Injectable()
 export class SubmissionsService {
@@ -22,7 +23,7 @@ export class SubmissionsService {
     return sub;
   }
 
-  create(data: Partial<Submission>): Promise<Submission> {
+  create(data: CreateSubmissionDto): Promise<Submission> {
     const sub = this.repo.create(data);
     return this.repo.save(sub);
   }
