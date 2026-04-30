@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
 import { Question } from './question.entity';
@@ -24,6 +25,9 @@ export class Form {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
 
   @OneToMany(() => Question, (q) => q.form, { cascade: true })
   questions: Question[];
