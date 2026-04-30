@@ -10,13 +10,20 @@ import { FlowsController } from './flows.controller';
 import { FlowsService } from './flows.service';
 import { FlowSubmissionsController } from './flow-submissions.controller';
 import { FlowSubmissionsService } from './flow-submissions.service';
+import { FLOWS_REPOSITORY, TypeOrmFlowsRepository } from './flows.repository';
+import { FormsModule } from '../forms/forms.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Flow, FlowForm, Rule, Question, Submission, Answer]),
+    FormsModule,
   ],
   controllers: [FlowsController, FlowSubmissionsController],
-  providers: [FlowsService, FlowSubmissionsService],
+  providers: [
+    FlowsService,
+    FlowSubmissionsService,
+    { provide: FLOWS_REPOSITORY, useClass: TypeOrmFlowsRepository },
+  ],
   exports: [FlowsService],
 })
 export class FlowsModule {}

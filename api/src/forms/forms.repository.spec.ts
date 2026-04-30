@@ -133,4 +133,28 @@ describe('TypeOrmFormsRepository', () => {
       expect(raw[0].deletedAt).not.toBeNull();
     });
   });
+
+  describe('findByIds', () => {
+    it('returns forms matching the given ids', async () => {
+      const formA = await repo.create({ name: 'FindByIds A', questions: [{ type: QuestionType.TEXT, label: 'Q1', order: 0 }] });
+      const formB = await repo.create({ name: 'FindByIds B', questions: [{ type: QuestionType.TEXT, label: 'Q2', order: 0 }] });
+
+      const found = await repo.findByIds([formA.id, formB.id]);
+      const ids = found.map((f) => f.id);
+      expect(ids).toContain(formA.id);
+      expect(ids).toContain(formB.id);
+    });
+  });
+
+  describe('findQuestionsByIds', () => {
+    it('returns questions matching the given ids', async () => {
+      const form = await repo.create({ name: 'FindQByIds', questions: [{ type: QuestionType.NUMBER, label: 'QQ', order: 0 }] });
+      const loaded = await repo.findOne(form.id);
+      const questionId = loaded!.questions[0].id;
+
+      const found = await repo.findQuestionsByIds([questionId]);
+      expect(found).toHaveLength(1);
+      expect(found[0].label).toBe('QQ');
+    });
+  });
 });

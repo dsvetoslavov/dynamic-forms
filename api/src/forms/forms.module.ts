@@ -13,6 +13,6 @@ import { FORMS_REPOSITORY, TypeOrmFormsRepository } from './forms.repository';
     FormsService,
     { provide: FORMS_REPOSITORY, useClass: TypeOrmFormsRepository },
   ],
-  exports: [FormsService],
+  exports: [FormsService, FORMS_REPOSITORY],
 })
 export class FormsModule {}

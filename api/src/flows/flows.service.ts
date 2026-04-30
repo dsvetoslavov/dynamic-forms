@@ -1,125 +1,98 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In } from 'typeorm';
 import { Flow } from './entities/flow.entity';
-import { FlowForm } from './entities/flow-form.entity';
-import { Rule } from './entities/rule.entity';
 import { Question } from '../forms/entities/question.entity';
-import { Form } from '../forms/entities/form.entity';
-import { CreateFlowDto, UpdateFlowDto, CreateRuleDto } from './dto';
+import { FLOWS_REPOSITORY } from './flows.repository';
+import { type FlowsRepository, type RuleData } from './flows.repository';
+import { FORMS_REPOSITORY } from '../forms/forms.repository';
+import { type FormsRepository } from '../forms/forms.repository';
 
 @Injectable()
 export class FlowsService {
   constructor(
-    @InjectRepository(Flow) private flowsRepo: Repository<Flow>,
-    @InjectRepository(FlowForm) private flowFormsRepo: Repository<FlowForm>,
-    @InjectRepository(Rule) private rulesRepo: Repository<Rule>,
-    @InjectRepository(Question) private questionsRepo: Repository<Question>,
-    private dataSource: DataSource,
+    @Inject(FLOWS_REPOSITORY) private flowsRepo: FlowsRepository,
+    @Inject(FORMS_REPOSITORY) private formsRepo: FormsRepository,
   ) {}
 
   findAll(): Promise<Flow[]> {
-    return this.flowsRepo.find();
+    return this.flowsRepo.findAll();
   }
 
   async findOne(id: string): Promise<Flow> {
-    const flow = await this.flowsRepo.findOne({
-      where: { id },
-      relations: ['flowForms', 'flowForms.form', 'rules'],
-    });
+    const flow = await this.flowsRepo.findOne(id);
     if (!flow) throw new NotFoundException();
     return flow;
   }
 
-  async create(data: CreateFlowDto) {
-    return this.dataSource.transaction(async (manager) => {
-      const formOrderMap = await this.validateForms(data.formIds);
+  async create(data: {
+    name: string;
+    description?: string;
+    formIds: string[];
+    rules?: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[];
+  }): Promise<Flow> {
+    const formOrderMap = await this.validateForms(data.formIds);
 
-      const flow = manager.create(Flow, {
-        name: data.name,
-        description: data.description,
-      });
-      const savedFlow = await manager.save(flow);
+    const normalizedRules = data.rules?.length
+      ? await this.validateRules(data.rules, formOrderMap)
+      : [];
 
-      const flowForms = data.formIds.map((formId, index) =>
-        manager.create(FlowForm, {
-          flowId: savedFlow.id,
-          formId,
-          order: index,
-        }),
-      );
-      await manager.save(flowForms);
+    const flowForms = data.formIds.map((formId, index) => ({ formId, order: index }));
 
-      if (data.rules?.length) {
-        await this.validateAndSaveRules(
-          manager,
-          savedFlow.id,
-          data.rules,
-          formOrderMap,
-        );
-      }
-
-      return savedFlow;
-    });
+    return this.flowsRepo.createWithFormsAndRules(
+      { name: data.name, description: data.description },
+      flowForms,
+      normalizedRules,
+    );
   }
 
-  async update(id: string, data: UpdateFlowDto) {
-    const existing = await this.flowsRepo.findOne({ where: { id } });
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+      formIds: string[];
+      rules?: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[];
+    },
+  ): Promise<Flow> {
+    const existing = await this.flowsRepo.findOne(id);
     if (!existing) throw new NotFoundException();
 
-    return this.dataSource.transaction(async (manager) => {
-      await manager.update(Flow, id, {
-        name: data.name ?? existing.name,
-        description: data.description ?? existing.description,
-      });
+    const formOrderMap = await this.validateForms(data.formIds);
 
-      const formOrderMap = await this.validateForms(data.formIds);
+    const normalizedRules = data.rules?.length
+      ? await this.validateRules(data.rules, formOrderMap)
+      : [];
 
-      await manager.delete(FlowForm, { flowId: id });
-      const flowForms = data.formIds.map((formId, index) =>
-        manager.create(FlowForm, {
-          flowId: id,
-          formId,
-          order: index,
-        }),
-      );
-      await manager.save(flowForms);
+    const flowForms = data.formIds.map((formId, index) => ({ formId, order: index }));
 
-      await manager.softDelete(Rule, { flowId: id });
-      if (data.rules?.length) {
-        await this.validateAndSaveRules(manager, id, data.rules, formOrderMap);
-      }
-
-      return this.findOne(id);
-    });
+    return this.flowsRepo.updateWithFormsAndRules(
+      id,
+      { name: data.name ?? existing.name, description: data.description ?? existing.description },
+      flowForms,
+      normalizedRules,
+    );
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.flowsRepo.softDelete(id);
-    if (result.affected === 0) throw new NotFoundException();
+    const removed = await this.flowsRepo.softRemove(id);
+    if (!removed) throw new NotFoundException();
   }
 
-  private async validateForms(
-    formIds: string[],
-  ): Promise<Map<string, number>> {
+  private async validateForms(formIds: string[]): Promise<Map<string, number>> {
     if (!formIds?.length) {
       throw new BadRequestException('At least one form is required');
     }
 
-    const forms = await this.dataSource.getRepository(Form).find({
-      where: { id: In(formIds) },
-    });
+    const forms = await this.formsRepo.findByIds(formIds);
 
     if (forms.length !== formIds.length) {
       const found = new Set(forms.map((f) => f.id));
       const missing = formIds.filter((id) => !found.has(id));
-      throw new BadRequestException(
-        `Forms not found: ${missing.join(', ')}`,
-      );
+      throw new BadRequestException(`Forms not found: ${missing.join(', ')}`);
     }
 
     const map = new Map<string, number>();
@@ -127,36 +100,23 @@ export class FlowsService {
     return map;
   }
 
-  private async validateAndSaveRules(
-    manager: any,
-    flowId: string,
-    rules: CreateRuleDto[],
+  private async validateRules(
+    rules: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[],
     formOrderMap: Map<string, number>,
-  ) {
-    const questionIds = rules.flatMap((r) => [
-      r.sourceQuestionId,
-      r.targetQuestionId,
-    ]);
-
-    const questions = await this.questionsRepo.find({
-      where: { id: In(questionIds) },
-    });
-
-    const questionMap = new Map(questions.map((q) => [q.id, q]));
+  ): Promise<RuleData[]> {
+    const questionIds = rules.flatMap((r) => [r.sourceQuestionId, r.targetQuestionId]);
+    const questions = await this.formsRepo.findQuestionsByIds(questionIds);
+    const questionMap = new Map<string, Question>(questions.map((q) => [q.id, q]));
 
     for (const rule of rules) {
       const source = questionMap.get(rule.sourceQuestionId);
       const target = questionMap.get(rule.targetQuestionId);
 
       if (!source) {
-        throw new BadRequestException(
-          `Source question not found: ${rule.sourceQuestionId}`,
-        );
+        throw new BadRequestException(`Source question not found: ${rule.sourceQuestionId}`);
       }
       if (!target) {
-        throw new BadRequestException(
-          `Target question not found: ${rule.targetQuestionId}`,
-        );
+        throw new BadRequestException(`Target question not found: ${rule.targetQuestionId}`);
       }
 
       const sourceOrder = formOrderMap.get(source.formId);
@@ -179,17 +139,12 @@ export class FlowsService {
       }
     }
 
-    const ruleEntities = rules.map((r) =>
-      manager.create(Rule, {
-        flowId,
-        sourceQuestionId: r.sourceQuestionId,
-        operator: r.operator || '=',
-        triggerValue: r.triggerValue,
-        targetQuestionId: r.targetQuestionId,
-        actionType: r.actionType || 'enable_target',
-      }),
-    );
-
-    await manager.save(ruleEntities);
+    return rules.map((r) => ({
+      sourceQuestionId: r.sourceQuestionId,
+      operator: r.operator || '=',
+      triggerValue: r.triggerValue,
+      targetQuestionId: r.targetQuestionId,
+      actionType: r.actionType || 'enable_target',
+    }));
   }
 }

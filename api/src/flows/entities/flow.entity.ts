@@ -30,7 +30,7 @@ export class Flow {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @OneToMany(() => FlowForm, (ff) => ff.flow, { cascade: true })
+  @OneToMany(() => FlowForm, (ff) => ff.flow, { cascade: true, orphanedRowAction: 'delete' })
   flowForms: FlowForm[];
 
   @OneToMany(() => Rule, (r) => r.flow, { cascade: true })
