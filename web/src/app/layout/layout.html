@@ -1,0 +1,9 @@
+<nav class="app-nav">
+  <div class="app-nav-inner">
+    <a routerLink="/builder" routerLinkActive="active"
+       [routerLinkActiveOptions]="{paths: 'subset', queryParams: 'ignored'}">Builder</a>
+    <a routerLink="/submissions" routerLinkActive="active"
+       [routerLinkActiveOptions]="{paths: 'subset', queryParams: 'ignored'}">Submissions</a>
+  </div>
+</nav>
+<router-outlet />

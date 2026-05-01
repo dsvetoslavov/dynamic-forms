@@ -131,7 +131,7 @@ export class FlowEditComponent implements OnInit {
     const body = { name: this.name, description: this.description, formIds, rules };
 
     const req = this.isNew() ? this.flowsSvc.create(body) : this.flowsSvc.update(this.flowId, body);
-    req.subscribe((flow) => this.router.navigate(['/flows', flow.id]));
+    req.subscribe((flow) => this.router.navigate(['/builder/flows', flow.id]));
   }
 
   private cleanInvalidRules() {

@@ -3,9 +3,9 @@
     <div class="top-bar">
       <h1>{{ f.name }}</h1>
       <div class="actions">
-        <a [routerLink]="['/flows', f.id, 'run']" class="btn primary">Start Flow</a>
-        <a [routerLink]="['/flows', f.id, 'edit']" class="btn">Edit</a>
-        <a routerLink="/flows" class="btn">Back</a>
+        <a [routerLink]="['/submissions/flows', f.id, 'run']" class="btn primary">Start Flow</a>
+        <a [routerLink]="['/builder/flows', f.id, 'edit']" class="btn">Edit</a>
+        <a routerLink="/builder/flows" class="btn">Back</a>
       </div>
     </div>
 
@@ -26,7 +26,7 @@
           @for (ff of f.forms; track ff.id) {
             <tr>
               <td>{{ ff.order + 1 }}</td>
-              <td><a [routerLink]="['/forms', ff.id]">{{ ff.name }}</a></td>
+              <td><a [routerLink]="['/builder/forms', ff.id]">{{ ff.name }}</a></td>
             </tr>
           }
         </tbody>

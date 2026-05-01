@@ -1,7 +1,9 @@
 <div class="container">
   <div class="top-bar">
-    <h1>Submissions</h1>
-    <a routerLink="/forms" class="btn">Back to Forms</a>
+    <h1>Runs</h1>
+    <div class="actions">
+      <a routerLink="/submissions/flows" class="btn">Start Flow</a>
+    </div>
   </div>
 
   @if (runs().length === 0) {
@@ -28,11 +30,11 @@
             <td>{{ run.startedAt | date }}</td>
             <td class="actions">
               @if (run.status === 'in_progress') {
-                <a [routerLink]="['/flows', run.flowId, 'run']"
+                <a [routerLink]="['/submissions/flows', run.flowId, 'run']"
                    [queryParams]="{runId: run.id}"
                    class="btn sm">Continue</a>
               }
-              <a [routerLink]="['/submissions', run.id]" class="btn sm primary">Details</a>
+              <a [routerLink]="['/submissions/runs', run.id]" class="btn sm primary">Details</a>
             </td>
           </tr>
         }

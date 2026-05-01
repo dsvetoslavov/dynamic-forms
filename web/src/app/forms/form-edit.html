@@ -1,7 +1,7 @@
 <div class="container">
   <div class="top-bar">
     <h1>{{ isNew() ? 'New Form' : 'Edit Form' }}</h1>
-    <a routerLink="/forms" class="btn">Back</a>
+    <a routerLink="/builder/forms" class="btn">Back</a>
   </div>
 
   <div class="card">
@@ -46,7 +46,7 @@
 
     <div class="actions">
       <button class="btn primary" (click)="save()">{{ isNew() ? 'Create' : 'Save' }}</button>
-      <a routerLink="/forms" class="btn">Cancel</a>
+      <a routerLink="/builder/forms" class="btn">Cancel</a>
     </div>
   </div>
 </div>

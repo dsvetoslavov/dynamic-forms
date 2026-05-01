@@ -1,10 +1,13 @@
 <div class="container">
   <div class="top-bar">
-    <h1>Flows</h1>
+    <h1>{{ mode() === 'builder' ? 'Flows' : 'Start a Flow' }}</h1>
     <div class="actions">
-      <a routerLink="/forms" class="btn">Forms</a>
-      <a routerLink="/submissions" class="btn">Submissions</a>
-      <a routerLink="/flows/new" class="btn primary">New Flow</a>
+      @if (mode() === 'builder') {
+        <a routerLink="/builder/forms" class="btn">Forms</a>
+        <a routerLink="/builder/flows/new" class="btn primary">New Flow</a>
+      } @else {
+        <a routerLink="/submissions/runs" class="btn">Runs</a>
+      }
     </div>
   </div>
 
@@ -22,12 +25,21 @@
       <tbody>
         @for (flow of flows(); track flow.id) {
           <tr>
-            <td><a [routerLink]="['/flows', flow.id]">{{ flow.name }}</a></td>
+            <td>
+              @if (mode() === 'builder') {
+                <a [routerLink]="['/builder/flows', flow.id]">{{ flow.name }}</a>
+              } @else {
+                <a [routerLink]="['/submissions/flows', flow.id, 'run']">{{ flow.name }}</a>
+              }
+            </td>
             <td>{{ flow.createdAt | date }}</td>
             <td class="actions">
-              <a [routerLink]="['/flows', flow.id, 'run']" class="btn sm primary">Start</a>
-              <a [routerLink]="['/flows', flow.id, 'edit']" class="btn sm">Edit</a>
-              <button class="btn sm danger" (click)="deleteFlow(flow)">Delete</button>
+              @if (mode() === 'runner') {
+                <a [routerLink]="['/submissions/flows', flow.id, 'run']" class="btn sm primary">Start</a>
+              } @else {
+                <a [routerLink]="['/builder/flows', flow.id, 'edit']" class="btn sm">Edit</a>
+                <button class="btn sm danger" (click)="deleteFlow(flow)">Delete</button>
+              }
             </td>
           </tr>
         }

@@ -2,8 +2,8 @@
   <div class="top-bar">
     <h1>Forms</h1>
     <div class="actions">
-      <a routerLink="/flows" class="btn">Flows</a>
-      <a routerLink="/forms/new" class="btn primary">New Form</a>
+      <a routerLink="/builder/flows" class="btn">Flows</a>
+      <a routerLink="/builder/forms/new" class="btn primary">New Form</a>
     </div>
   </div>
 
@@ -22,11 +22,11 @@
       <tbody>
         @for (form of forms(); track form.id) {
           <tr>
-            <td><a [routerLink]="['/forms', form.id]">{{ form.name }}</a></td>
+            <td><a [routerLink]="['/builder/forms', form.id]">{{ form.name }}</a></td>
             <td>{{ form.questions?.length || 0 }}</td>
             <td>{{ form.createdAt | date }}</td>
             <td class="actions">
-              <a [routerLink]="['/forms', form.id, 'edit']" class="btn sm">Edit</a>
+              <a [routerLink]="['/builder/forms', form.id, 'edit']" class="btn sm">Edit</a>
               <button class="btn sm danger" (click)="deleteForm(form)">Delete</button>
             </td>
           </tr>

@@ -77,7 +77,7 @@ export class FormEditComponent implements OnInit {
       ? this.svc.create(body)
       : this.svc.update(this.formId, body);
 
-    req.subscribe((form) => this.router.navigate(['/forms', form.id]));
+    req.subscribe((form) => this.router.navigate(['/builder/forms', form.id]));
   }
 }
 

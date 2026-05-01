@@ -2,7 +2,7 @@
   @if (flow(); as f) {
     <div class="top-bar">
       <h1>{{ f.name }}</h1>
-      <a routerLink="/flows" class="btn">Back</a>
+      <a routerLink="/submissions/flows" class="btn">Back</a>
     </div>
 
     @if (f.description) {
@@ -22,7 +22,7 @@
 
         <div class="actions" style="margin-top: 16px;">
           <button class="btn primary" (click)="startFlow()">Start</button>
-          <a routerLink="/flows" class="btn">Cancel</a>
+          <a routerLink="/submissions/flows" class="btn">Cancel</a>
         </div>
       </div>
     }
@@ -94,7 +94,7 @@
     @if (step() === 'complete') {
       <div class="success-msg">Flow completed successfully!</div>
       <div class="actions">
-        <a routerLink="/flows" class="btn">Back to Flows</a>
+        <a routerLink="/submissions/flows" class="btn">Back to Flows</a>
       </div>
     }
   } @else {

@@ -1,7 +1,7 @@
 <div class="container">
   <div class="top-bar">
     <h1>{{ isNew() ? 'New Flow' : 'Edit Flow' }}</h1>
-    <a routerLink="/flows" class="btn">Back</a>
+    <a routerLink="/builder/flows" class="btn">Back</a>
   </div>
 
   <div class="card">
@@ -123,7 +123,7 @@
 
     <div class="actions">
       <button class="btn primary" (click)="save()">{{ isNew() ? 'Create' : 'Save' }}</button>
-      <a routerLink="/flows" class="btn">Cancel</a>
+      <a routerLink="/builder/flows" class="btn">Cancel</a>
     </div>
   </div>
 </div>

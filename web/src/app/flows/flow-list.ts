@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, input, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FlowsService, FlowSummary } from './flows.service';
@@ -9,6 +9,7 @@ import { FlowsService, FlowSummary } from './flows.service';
   templateUrl: './flow-list.html',
 })
 export class FlowListComponent implements OnInit {
+  mode = input<'builder' | 'runner'>('builder');
   private svc = inject(FlowsService);
   flows = signal<FlowSummary[]>([]);
 
