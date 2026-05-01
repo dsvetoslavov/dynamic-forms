@@ -15,11 +15,11 @@ import {
 import {
   FLOWS_REPOSITORY,
   type FlowsRepository,
-} from '../forms/flows.repository';
+} from '../builder/flows.repository';
 import {
   FORMS_REPOSITORY,
   type FormsRepository,
-} from '../forms/forms.repository';
+} from '../builder/forms.repository';
 import { SubmitFlowRunDto } from './dto';
 
 @Injectable()

@@ -9,12 +9,12 @@ import {
   FLOW_RUNS_REPOSITORY,
   TypeOrmFlowRunsRepository,
 } from './flow-runs.repository';
-import { FormsModule } from '../forms/forms.module';
+import { BuilderModule } from '../builder/builder.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FlowRun, Submission, Answer]),
-    FormsModule,
+    BuilderModule,
   ],
   controllers: [FlowRunsController],
   providers: [
@@ -22,4 +22,4 @@ import { FormsModule } from '../forms/forms.module';
     { provide: FLOW_RUNS_REPOSITORY, useClass: TypeOrmFlowRunsRepository },
   ],
 })
-export class FlowRunsModule {}
+export class SubmissionsModule {}

@@ -1,6 +1,6 @@
 # Dynamic Forms
 
-A platform for creating forms, composing them into multi-step flows and conditional logic, and collecting submissions. Users define questions, wire up rules that show/hide fields based on answers, and guide respondents through ordered form sequences.
+A platform for creating forms, composing them into multi-step flows with conditional logic, and collecting submissions. Users define questions, wire up rules that show/hide fields based on answers, and guide respondents through ordered form sequences.
 
 > **Prototype** — this is an exploratory project, not a production-ready application. There is no auth and error handling is minimal.
 
@@ -134,8 +134,8 @@ erDiagram
 ### Module structure
 
 ```
-forms/          Form, Question, Flow, FlowForm, Rule CRUD    depends on: —
-flow-runs/      FlowRun lifecycle, submissions                depends on: Forms
+builder/        Form, Question, Flow, FlowForm, Rule CRUD    depends on: —
+submissions/    FlowRun lifecycle, submissions                depends on: Builder
 ```
 
 ### Layering
@@ -145,4 +145,3 @@ Each module follows **Controller → Service → Repository**:
 - **Controller** — HTTP boundary. Validates input via class-validator DTOs, maps entities to response DTOs. No business logic.
 - **Service** — Domain logic. Orchestrates business rules (rule evaluation, diff-based question updates). Depends on repository interfaces, never on TypeORM directly.
 - **Repository** — Persistence. Wraps all TypeORM access behind an interface injected via a symbol token. 
-

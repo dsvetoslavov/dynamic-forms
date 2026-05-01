@@ -10,32 +10,32 @@ Dynamic forms platform — a NestJS API for creating forms with conditional logi
 
 ```
 api/src/
-  app.module.ts          # root module, TypeORM config (env vars with localhost defaults)
-  forms/
-    entities/            # Form, Question, Flow, FlowForm, Rule
-    dto/                 # request DTOs (class-validator), response DTOs (plain shapes)
-    forms.repository.ts  # Form/Question persistence (soft-deletes rules on question removal)
-    forms.service.ts     # form domain logic, no TypeORM imports
-    forms.controller.ts  # /forms validation, response mapping
-    flows.repository.ts  # Flow/FlowForm/Rule persistence
-    flows.service.ts     # flow domain logic, rule validation
-    flows.controller.ts  # /flows validation, response mapping
-    forms.module.ts      # single module for forms + flows
-  flow-runs/
-    entities/            # FlowRun, Submission, Answer
+  app.module.ts            # root module, TypeORM config (env vars with localhost defaults)
+  builder/
+    entities/              # Form, Question, Flow, FlowForm, Rule
+    dto/                   # request DTOs (class-validator), response DTOs (plain shapes)
+    forms.repository.ts    # Form/Question persistence (soft-deletes rules on question removal)
+    forms.service.ts       # form domain logic, no TypeORM imports
+    forms.controller.ts    # /forms validation, response mapping
+    flows.repository.ts    # Flow/FlowForm/Rule persistence
+    flows.service.ts       # flow domain logic, rule validation
+    flows.controller.ts    # /flows validation, response mapping
+    builder.module.ts
+  submissions/
+    entities/              # FlowRun, Submission, Answer
     dto/
     flow-runs.repository.ts    # FlowRun + Submission persistence
     flow-runs.service.ts       # orchestration: rule evaluation, state, submissions
     flow-runs.controller.ts    # /flow-runs
     rule-engine.ts             # pure function: evaluateRules
-    flow-runs.module.ts
+    submissions.module.ts
 ```
 
 ### Module dependencies
 
 ```
-forms/          — Form, Question, Flow, FlowForm, Rule CRUD    depends on: —
-flow-runs/      — FlowRun lifecycle, submissions                depends on: Forms
+builder/        — Form, Question, Flow, FlowForm, Rule CRUD    depends on: —
+submissions/    — FlowRun lifecycle, submissions                depends on: Builder
 ```
 
 ### Layering: Controller -> Service -> Repository

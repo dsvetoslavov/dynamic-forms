@@ -23,4 +23,4 @@ import { FLOWS_REPOSITORY, TypeOrmFlowsRepository } from './flows.repository';
   ],
   exports: [FormsService, FORMS_REPOSITORY, FlowsService, FLOWS_REPOSITORY],
 })
-export class FormsModule {}
+export class BuilderModule {}

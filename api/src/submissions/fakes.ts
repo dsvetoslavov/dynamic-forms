@@ -4,13 +4,13 @@ import { FlowRun } from './entities/flow-run.entity';
 import { Submission } from './entities/submission.entity';
 import { Answer } from './entities/answer.entity';
 import { FlowRunsRepository } from './flow-runs.repository';
-import { FlowsRepository, RuleData } from '../forms/flows.repository';
-import { FormsRepository } from '../forms/forms.repository';
-import { Flow } from '../forms/entities/flow.entity';
-import { FlowForm } from '../forms/entities/flow-form.entity';
-import { Rule } from '../forms/entities/rule.entity';
-import { Form } from '../forms/entities/form.entity';
-import { Question } from '../forms/entities/question.entity';
+import { FlowsRepository, RuleData } from '../builder/flows.repository';
+import { FormsRepository } from '../builder/forms.repository';
+import { Flow } from '../builder/entities/flow.entity';
+import { FlowForm } from '../builder/entities/flow-form.entity';
+import { Rule } from '../builder/entities/rule.entity';
+import { Form } from '../builder/entities/form.entity';
+import { Question } from '../builder/entities/question.entity';
 
 export class FakeFlowRunsRepository implements FlowRunsRepository {
   flowRuns: FlowRun[] = [];

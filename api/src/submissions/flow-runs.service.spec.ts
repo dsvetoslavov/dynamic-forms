@@ -2,11 +2,11 @@ import { NotFoundException, BadRequestException, ConflictException, Unprocessabl
 import { FlowRunsService } from './flow-runs.service';
 import { FakeFlowRunsRepository, FakeFlowsRepository, FakeFormsRepository } from './fakes';
 import { FlowRun } from './entities/flow-run.entity';
-import { Flow } from '../forms/entities/flow.entity';
-import { FlowForm } from '../forms/entities/flow-form.entity';
-import { Rule } from '../forms/entities/rule.entity';
-import { Form } from '../forms/entities/form.entity';
-import { Question, QuestionType } from '../forms/entities/question.entity';
+import { Flow } from '../builder/entities/flow.entity';
+import { FlowForm } from '../builder/entities/flow-form.entity';
+import { Rule } from '../builder/entities/rule.entity';
+import { Form } from '../builder/entities/form.entity';
+import { Question, QuestionType } from '../builder/entities/question.entity';
 import { Submission } from './entities/submission.entity';
 import { Answer } from './entities/answer.entity';
 

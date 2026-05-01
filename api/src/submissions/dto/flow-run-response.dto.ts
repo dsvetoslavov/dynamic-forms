@@ -1,4 +1,4 @@
-import { QuestionResponseDto } from '../../forms/dto';
+import { QuestionResponseDto } from '../../builder/dto';
 
 export class FlowRunResponseDto {
   id: string;

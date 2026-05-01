@@ -6,7 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Submission } from './submission.entity';
-import { Question } from '../../forms/entities/question.entity';
+import { Question } from '../../builder/entities/question.entity';
 
 @Entity('answers')
 export class Answer {

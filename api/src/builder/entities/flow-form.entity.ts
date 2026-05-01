@@ -7,7 +7,7 @@ import {
   Unique,
 } from 'typeorm';
 import { Flow } from './flow.entity';
-import { Form } from '../../forms/entities/form.entity';
+import { Form } from './form.entity';
 
 @Entity('flow_forms')
 @Unique('UQ_FORM_FLOW_ORDER', ['flowId', 'formId', 'order'])

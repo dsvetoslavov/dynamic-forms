@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FormsModule } from './forms/forms.module';
-import { FlowRunsModule } from './flow-runs/flow-runs.module';
+import { BuilderModule } from './builder/builder.module';
+import { SubmissionsModule } from './submissions/submissions.module';
 
 @Module({
   imports: [
@@ -15,8 +15,8 @@ import { FlowRunsModule } from './flow-runs/flow-runs.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    FormsModule,
-    FlowRunsModule,
+    BuilderModule,
+    SubmissionsModule,
   ],
 })
 export class AppModule {}

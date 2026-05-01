@@ -7,7 +7,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Form } from '../../forms/entities/form.entity';
+import { Form } from '../../builder/entities/form.entity';
 import { FlowRun } from './flow-run.entity';
 import { Answer } from './answer.entity';
 
