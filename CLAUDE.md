@@ -12,19 +12,15 @@ Dynamic forms platform — a NestJS API for creating forms with conditional logi
 api/src/
   app.module.ts          # root module, TypeORM config (env vars with localhost defaults)
   forms/
-    entities/            # Form, Question (enum QuestionType)
+    entities/            # Form, Question, Flow, FlowForm, Rule
     dto/                 # request DTOs (class-validator), response DTOs (plain shapes)
-    forms.repository.ts  # interface + TypeORM implementation
-    forms.service.ts     # domain logic, no TypeORM imports
-    forms.controller.ts  # validation, response mapping
-    forms.module.ts
-  flows/
-    entities/            # Flow, FlowForm, Rule
-    dto/
-    flows.repository.ts
-    flows.service.ts
-    flows.controller.ts        # /flows
-    flows.module.ts
+    forms.repository.ts  # Form/Question persistence (soft-deletes rules on question removal)
+    forms.service.ts     # form domain logic, no TypeORM imports
+    forms.controller.ts  # /forms validation, response mapping
+    flows.repository.ts  # Flow/FlowForm/Rule persistence
+    flows.service.ts     # flow domain logic, rule validation
+    flows.controller.ts  # /flows validation, response mapping
+    forms.module.ts      # single module for forms + flows
   flow-runs/
     entities/            # FlowRun, Submission, Answer
     dto/
@@ -38,12 +34,9 @@ api/src/
 ### Module dependencies
 
 ```
-forms/          — Form, Question CRUD              depends on: —
-flows/          — Flow, FlowForm, Rule CRUD         depends on: Forms
-flow-runs/      — FlowRun lifecycle, submissions     depends on: Flows, Forms
+forms/          — Form, Question, Flow, FlowForm, Rule CRUD    depends on: —
+flow-runs/      — FlowRun lifecycle, submissions                depends on: Forms
 ```
-
-No circular dependencies. `flow-runs` sits at the top.
 
 ### Layering: Controller -> Service -> Repository
 
@@ -83,5 +76,5 @@ No circular dependencies. `flow-runs` sits at the top.
 
 ### Conventions
 - Soft delete everywhere (`@DeleteDateColumn` on Form, Question, Flow, Rule)
-- Form update: soft-delete changed/removed questions, create new ones (snapshot approach)
+- Form update: soft-delete changed/removed questions, soft-delete rules referencing them, create new questions (snapshot approach)
 - Module wires repository via `{ provide: SYMBOL, useClass: TypeOrmImpl }`
