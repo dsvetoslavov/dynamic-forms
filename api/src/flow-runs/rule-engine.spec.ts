@@ -1,5 +1,5 @@
 import { evaluateRules } from './rule-engine';
-import { Rule } from '../flows/entities/rule.entity';
+import { Rule } from '../forms/entities/rule.entity';
 
 function makeRule(overrides: Partial<Rule>): Rule {
   return {

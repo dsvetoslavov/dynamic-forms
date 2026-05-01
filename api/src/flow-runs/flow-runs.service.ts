@@ -15,7 +15,7 @@ import {
 import {
   FLOWS_REPOSITORY,
   type FlowsRepository,
-} from '../flows/flows.repository';
+} from '../forms/flows.repository';
 import {
   FORMS_REPOSITORY,
   type FormsRepository,

@@ -9,7 +9,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { Flow } from './flow.entity';
-import { Question } from '../../forms/entities/question.entity';
+import { Question } from './question.entity';
 
 @Entity('rules')
 export class Rule {

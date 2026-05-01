@@ -9,13 +9,11 @@ import {
   FLOW_RUNS_REPOSITORY,
   TypeOrmFlowRunsRepository,
 } from './flow-runs.repository';
-import { FlowsModule } from '../flows/flows.module';
 import { FormsModule } from '../forms/forms.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([FlowRun, Submission, Answer]),
-    FlowsModule,
     FormsModule,
   ],
   controllers: [FlowRunsController],

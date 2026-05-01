@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Form } from './entities/form.entity';
 import { Question, QuestionType } from './entities/question.entity';
+import { Flow } from './entities/flow.entity';
+import { FlowForm } from './entities/flow-form.entity';
+import { Rule } from './entities/rule.entity';
 import { TypeOrmFormsRepository } from './forms.repository';
 
 describe('TypeOrmFormsRepository', () => {
@@ -19,10 +22,10 @@ describe('TypeOrmFormsRepository', () => {
           username: 'postgres',
           password: 'postgres',
           database: 'dynamic_forms_test',
-          entities: [Form, Question],
+          entities: [Form, Question, Flow, FlowForm, Rule],
           synchronize: true,
         }),
-        TypeOrmModule.forFeature([Form, Question]),
+        TypeOrmModule.forFeature([Form, Question, Flow, FlowForm, Rule]),
       ],
       providers: [TypeOrmFormsRepository],
     }).compile();
@@ -143,6 +146,53 @@ describe('TypeOrmFormsRepository', () => {
       const ids = found.map((f) => f.id);
       expect(ids).toContain(formA.id);
       expect(ids).toContain(formB.id);
+    });
+  });
+
+  describe('update — rule cleanup', () => {
+    it('soft-deletes rules referencing removed questions', async () => {
+      // Create two forms with one question each
+      const formA = await repo.create({
+        name: 'Rule Cleanup A',
+        questions: [{ type: QuestionType.YES_NO, label: 'Source Q', order: 0 }],
+      });
+      const formB = await repo.create({
+        name: 'Rule Cleanup B',
+        questions: [{ type: QuestionType.TEXT, label: 'Target Q', order: 0 }],
+      });
+
+      const loadedA = await repo.findOne(formA.id);
+      const loadedB = await repo.findOne(formB.id);
+      const sourceQ = loadedA!.questions[0];
+      const targetQ = loadedB!.questions[0];
+
+      // Create a flow with both forms and a rule linking their questions
+      const flowRepo = dataSource.getRepository(Flow);
+      const flow = await flowRepo.save(flowRepo.create({ name: 'Rule Cleanup Flow' }));
+      await dataSource.getRepository(FlowForm).save([
+        { flowId: flow.id, formId: formA.id, order: 0 },
+        { flowId: flow.id, formId: formB.id, order: 1 },
+      ]);
+      const rule = await dataSource.getRepository(Rule).save({
+        flowId: flow.id,
+        sourceQuestionId: sourceQ.id,
+        triggerValue: 'yes',
+        targetQuestionId: targetQ.id,
+      });
+
+      // Update formA: remove the source question (replace with a new one)
+      loadedA!.questions = [
+        { type: QuestionType.TEXT, label: 'Replacement Q', order: 0, formId: formA.id } as Question,
+      ];
+      await repo.update(loadedA!, [sourceQ]);
+
+      // Rule should be soft-deleted
+      const rules = await dataSource.query(
+        `SELECT id, "deletedAt" FROM rules WHERE id = $1`,
+        [rule.id],
+      );
+      expect(rules).toHaveLength(1);
+      expect(rules[0].deletedAt).not.toBeNull();
     });
   });
 

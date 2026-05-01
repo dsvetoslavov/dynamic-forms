@@ -4,8 +4,8 @@ import { DataSource } from 'typeorm';
 import { Flow } from './entities/flow.entity';
 import { FlowForm } from './entities/flow-form.entity';
 import { Rule } from './entities/rule.entity';
-import { Form } from '../forms/entities/form.entity';
-import { Question, QuestionType } from '../forms/entities/question.entity';
+import { Form } from './entities/form.entity';
+import { Question, QuestionType } from './entities/question.entity';
 import { TypeOrmFlowsRepository } from './flows.repository';
 
 describe('TypeOrmFlowsRepository', () => {

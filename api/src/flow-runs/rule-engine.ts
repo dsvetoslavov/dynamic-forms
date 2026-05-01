@@ -1,4 +1,4 @@
-import { Rule } from '../flows/entities/rule.entity';
+import { Rule } from '../forms/entities/rule.entity';
 
 /**
  * Evaluate flow rules against an answer context and return the set of enabled question IDs.

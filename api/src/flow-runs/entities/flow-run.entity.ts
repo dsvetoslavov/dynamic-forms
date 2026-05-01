@@ -8,7 +8,7 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { Flow } from '../../flows/entities/flow.entity';
+import { Flow } from '../../forms/entities/flow.entity';
 import { Submission } from './submission.entity';
 
 @Entity('flow_runs')

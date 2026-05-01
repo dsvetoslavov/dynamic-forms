@@ -4,11 +4,11 @@ import { FlowRun } from './entities/flow-run.entity';
 import { Submission } from './entities/submission.entity';
 import { Answer } from './entities/answer.entity';
 import { FlowRunsRepository } from './flow-runs.repository';
-import { FlowsRepository, RuleData } from '../flows/flows.repository';
+import { FlowsRepository, RuleData } from '../forms/flows.repository';
 import { FormsRepository } from '../forms/forms.repository';
-import { Flow } from '../flows/entities/flow.entity';
-import { FlowForm } from '../flows/entities/flow-form.entity';
-import { Rule } from '../flows/entities/rule.entity';
+import { Flow } from '../forms/entities/flow.entity';
+import { FlowForm } from '../forms/entities/flow-form.entity';
+import { Rule } from '../forms/entities/rule.entity';
 import { Form } from '../forms/entities/form.entity';
 import { Question } from '../forms/entities/question.entity';
 

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, DeepPartial, In, Repository } from 'typeorm';
 import { Form } from './entities/form.entity';
 import { Question } from './entities/question.entity';
+import { Rule } from './entities/rule.entity';
 
 export const FORMS_REPOSITORY = Symbol('FORMS_REPOSITORY');
 
@@ -54,6 +55,15 @@ export class TypeOrmFormsRepository implements FormsRepository {
     return this.dataSource.transaction(async (manager) => {
       if (questionsToRemove.length) {
         await manager.softRemove(questionsToRemove);
+
+        const removedIds = questionsToRemove.map((q) => q.id);
+        await manager
+          .createQueryBuilder()
+          .update(Rule)
+          .set({ deletedAt: () => 'NOW()' })
+          .where('source_question_id IN (:...ids) OR target_question_id IN (:...ids)', { ids: removedIds })
+          .andWhere('"deletedAt" IS NULL')
+          .execute();
       }
       return manager.save(form);
     });

@@ -5,12 +5,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Flow } from './entities/flow.entity';
-import { Question } from '../forms/entities/question.entity';
+import { Question } from './entities/question.entity';
 import { validateRuleGraph, validateRuleOrdering } from './rule-validation';
 import { FLOWS_REPOSITORY } from './flows.repository';
 import { type FlowsRepository, type RuleData } from './flows.repository';
-import { FORMS_REPOSITORY } from '../forms/forms.repository';
-import { type FormsRepository } from '../forms/forms.repository';
+import { FORMS_REPOSITORY } from './forms.repository';
+import { type FormsRepository } from './forms.repository';
 
 @Injectable()
 export class FlowsService {

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FormsModule } from './forms/forms.module';
-import { FlowsModule } from './flows/flows.module';
 import { FlowRunsModule } from './flow-runs/flow-runs.module';
 
 @Module({
@@ -17,7 +16,6 @@ import { FlowRunsModule } from './flow-runs/flow-runs.module';
       synchronize: true,
     }),
     FormsModule,
-    FlowsModule,
     FlowRunsModule,
   ],
 })
