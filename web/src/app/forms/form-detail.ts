@@ -17,7 +17,6 @@ export class FormDetailComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.svc.get(id).subscribe((f) => this.form.set(f));
-    this.svc.getRules(id).subscribe((r) => this.rules.set(r));
   }
 
   sortedQuestions(f: Form) {

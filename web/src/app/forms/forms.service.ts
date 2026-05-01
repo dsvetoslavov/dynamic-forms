@@ -52,17 +52,4 @@ export class FormsService {
   delete(id: string) {
     return this.http.delete(`/api/forms/${id}`);
   }
-
-  getRules(formId: string) {
-    return this.http.get<Rule[]>(`/api/forms/${formId}/rules`);
-  }
-
-  createRule(formId: string, body: Partial<Rule>) {
-    return this.http.post<Rule>(`/api/forms/${formId}/rules`, body);
-  }
-
-  deleteRule(formId: string, ruleId: string) {
-    return this.http.delete(`/api/forms/${formId}/rules/${ruleId}`);
-  }
-
 }
