@@ -71,9 +71,8 @@ export class FlowRunsService {
 
   async getState(runId: string) {
     const flowRun = await this.loadFlowRun(runId);
-    const flow = await this.loadFlow(flowRun.flowId);
+    const flow = flowRun.flow;
 
-    // Determine current form (next unsubmitted form in the flow)
     const sortedForms = [...flow.flowForms].sort((a, b) => a.order - b.order);
     const submittedFormIds = new Set(flowRun.submissions.map((s) => s.formId));
     const currentFlowForm = sortedForms.find((ff) => !submittedFormIds.has(ff.formId));
@@ -90,9 +89,9 @@ export class FlowRunsService {
     }
 
     const questions = await this.formsRepo.findQuestionsByFormId(currentFlowForm.formId);
-    const allQuestionIds = questions.map((q) => q.id);
+    const questionIds = questions.map((q) => q.id);
     const answerContext = this.buildAnswerContext(flowRun);
-    const enabled = evaluateRules(flow.rules, answerContext, allQuestionIds);
+    const enabled = evaluateRules(flow.rules, answerContext, questionIds);
 
     return {
       username: flowRun.username,
@@ -115,11 +114,11 @@ export class FlowRunsService {
       throw new BadRequestException('Form already submitted in this run');
     }
 
-    const flow = await this.loadFlow(flowRun.flowId);
+    const flow = flowRun.flow;
     this.assertFormInFlow(flow, body.formId);
 
     const formQuestions = await this.formsRepo.findQuestionsByFormId(body.formId);
-    const allQuestionIds = formQuestions.map((q) => q.id);
+    const questionIds = formQuestions.map((q) => q.id);
 
     // Build context from prior submissions + current answers
     const priorContext = this.buildAnswerContext(flowRun);
@@ -129,7 +128,7 @@ export class FlowRunsService {
     }
     const fullContext = { ...priorContext, ...currentAnswers };
 
-    const enabled = evaluateRules(flow.rules, fullContext, allQuestionIds);
+    const enabled = evaluateRules(flow.rules, fullContext, questionIds);
 
     // Reject answers to disabled questions
     for (const a of body.answers || []) {
@@ -161,8 +160,8 @@ export class FlowRunsService {
     }
 
     const nextQuestions = await this.formsRepo.findQuestionsByFormId(nextFlowForm.formId);
-    const nextAllIds = nextQuestions.map((q) => q.id);
-    const nextEnabled = evaluateRules(flow.rules, fullContext, nextAllIds);
+    const nextIds = nextQuestions.map((q) => q.id);
+    const nextEnabled = evaluateRules(flow.rules, fullContext, nextIds);
 
     return {
       submissionId: saved.id,

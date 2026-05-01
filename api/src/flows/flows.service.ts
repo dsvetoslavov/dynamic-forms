@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Flow } from './entities/flow.entity';
 import { Question } from '../forms/entities/question.entity';
+import { validateRuleGraph, validateRuleOrdering } from './rule-validation';
 import { FLOWS_REPOSITORY } from './flows.repository';
 import { type FlowsRepository, type RuleData } from './flows.repository';
 import { FORMS_REPOSITORY } from '../forms/forms.repository';
@@ -104,6 +105,12 @@ export class FlowsService {
     rules: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[],
     formOrderMap: Map<string, number>,
   ): Promise<RuleData[]> {
+    try {
+      validateRuleGraph(rules);
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
+    }
+
     const questionIds = rules.flatMap((r) => [r.sourceQuestionId, r.targetQuestionId]);
     const questions = await this.formsRepo.findQuestionsByIds(questionIds);
     const questionMap = new Map<string, Question>(questions.map((q) => [q.id, q]));
@@ -132,11 +139,25 @@ export class FlowsService {
           `Target question ${rule.targetQuestionId} belongs to a form not in this flow`,
         );
       }
-      if (targetOrder < sourceOrder) {
-        throw new BadRequestException(
-          `Target question's form must be at the same position or later than source question's form`,
-        );
-      }
+    }
+
+    try {
+      validateRuleOrdering(
+        rules.map((r) => {
+          const source = questionMap.get(r.sourceQuestionId)!;
+          const target = questionMap.get(r.targetQuestionId)!;
+          return {
+            sourceQuestionId: r.sourceQuestionId,
+            targetQuestionId: r.targetQuestionId,
+            sourceFormOrder: formOrderMap.get(source.formId)!,
+            targetFormOrder: formOrderMap.get(target.formId)!,
+            sourceQuestionOrder: source.order,
+            targetQuestionOrder: target.order,
+          };
+        }),
+      );
+    } catch (e) {
+      throw new BadRequestException((e as Error).message);
     }
 
     return rules.map((r) => ({

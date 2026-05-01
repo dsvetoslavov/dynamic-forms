@@ -3,35 +3,29 @@ import { Rule } from '../flows/entities/rule.entity';
 /**
  * Evaluate flow rules against an answer context and return the set of enabled question IDs.
  *
- * Questions not targeted by any rule are always enabled.
- * Targeted questions start disabled and become enabled when any matching rule fires.
- * Iterates until stable or 10 rounds (handles chained rules like A->B->C).
+ * Rules are linear (form N → form N+1). Only rules targeting questions on the
+ * current form are considered. Source questions may be on prior forms — their
+ * values are looked up in answerContext.
+ *
+ * Questions not targeted by any relevant rule are always enabled.
+ * Targeted questions start disabled and become enabled when a matching rule fires.
  */
 export function evaluateRules(
   rules: Rule[],
   answerContext: Record<string, string>,
-  allQuestionIds: string[],
+  currentFormQuestionIds: string[],
 ): Set<string> {
-  const targetIds = new Set(rules.map((r) => r.targetQuestionId));
-  const enabled = new Set(allQuestionIds.filter((id) => !targetIds.has(id)));
+  const currentIds = new Set(currentFormQuestionIds);
+  const relevantRules = rules.filter((r) => currentIds.has(r.targetQuestionId));
+  const targetIds = new Set(relevantRules.map((r) => r.targetQuestionId));
+  const enabled = new Set(currentFormQuestionIds.filter((id) => !targetIds.has(id)));
 
-  const MAX_ITERATIONS = 10;
-  for (let i = 0; i < MAX_ITERATIONS; i++) {
-    let changed = false;
-
-    for (const rule of rules) {
-      if (enabled.has(rule.targetQuestionId)) continue;
-
-      const answer = answerContext[rule.sourceQuestionId] ?? '';
-      const matches = ruleMatches(rule, answer);
-
-      if (matches) {
-        enabled.add(rule.targetQuestionId);
-        changed = true;
-      }
+  for (const rule of relevantRules) {
+    if (enabled.has(rule.targetQuestionId)) continue;
+    const answer = answerContext[rule.sourceQuestionId] ?? '';
+    if (ruleMatches(rule, answer)) {
+      enabled.add(rule.targetQuestionId);
     }
-
-    if (!changed) break;
   }
 
   return enabled;
