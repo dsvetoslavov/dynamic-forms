@@ -52,8 +52,8 @@
               @case ('yes_no') {
                 <select [ngModel]="answers()[q.id!]" (ngModelChange)="updateAnswer(q.id!, $event)">
                   <option value="">-- Select --</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
                 </select>
               }
               @case ('select') {

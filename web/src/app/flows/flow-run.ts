@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { FlowsService, FlowDetail, FlowRule } from './flows.service';
 import { Question } from '../forms/forms.service';
+import { evaluateRules } from './rule-engine';
 
 @Component({
   selector: 'app-flow-run',
@@ -29,55 +30,20 @@ export class FlowRunComponent implements OnInit {
 
   // All forms' questions (for rule source lookup)
   allRules = signal<FlowRule[]>([]);
-  enabledFromServer = signal<Set<string>>(new Set());
   answers = signal<Record<string, string>>({});
-
-  // Questions on the current form that are targets of same-form rules
-  sameFormRules = computed(() => {
-    const rules = this.allRules();
-    const qIds = new Set(this.currentFormQuestions().map((q) => q.id!));
-    return rules.filter(
-      (r) => qIds.has(r.sourceQuestionId) && qIds.has(r.targetQuestionId),
-    );
-  });
+  // Answers from previously submitted forms (for cross-form rule evaluation)
+  priorAnswers = signal<Record<string, string>>({});
 
   visibleQuestions = computed(() => {
     const questions = this.currentFormQuestions();
     if (!questions.length) return [];
 
     const sorted = [...questions].sort((a, b) => a.order - b.order);
-    const allRules = this.allRules();
-    const sameFormRules = this.sameFormRules();
-    const serverEnabled = this.enabledFromServer();
-    const answers = this.answers();
-    const currentQIds = new Set(questions.map((q) => q.id!));
+    const currentQIds = questions.map((q) => q.id!);
+    const answerContext = { ...this.priorAnswers(), ...this.answers() };
+    const enabled = evaluateRules(this.allRules(), answerContext, currentQIds);
 
-    // All rule targets on this form
-    const targetIds = new Set(
-      allRules
-        .filter((r) => currentQIds.has(r.targetQuestionId))
-        .map((r) => r.targetQuestionId),
-    );
-
-    // Evaluate same-form rules client-side
-    const sameFormEnabled = new Set<string>();
-    for (const rule of sameFormRules) {
-      const answer = answers[rule.sourceQuestionId] || '';
-      const matches =
-        rule.operator === '='
-          ? answer.toLowerCase() === rule.triggerValue.toLowerCase()
-          : answer.toLowerCase().includes(rule.triggerValue.toLowerCase());
-      if (matches) {
-        sameFormEnabled.add(rule.targetQuestionId);
-      }
-    }
-
-    return sorted.filter(
-      (q) =>
-        !targetIds.has(q.id!) ||
-        serverEnabled.has(q.id!) ||
-        sameFormEnabled.has(q.id!),
-    );
+    return sorted.filter((q) => enabled.has(q.id!));
   });
 
   totalForms = computed(() => this.flow()?.forms.length ?? 0);
@@ -109,7 +75,6 @@ export class FlowRunComponent implements OnInit {
         this.currentFormId.set(state.formId);
         this.currentFormName.set(state.formName ?? '');
         this.currentFormQuestions.set(state.questions || []);
-        this.enabledFromServer.set(new Set(state.enabledQuestionIds));
         this.step.set('filling');
       },
       error: (err) =>
@@ -133,7 +98,6 @@ export class FlowRunComponent implements OnInit {
         this.currentFormId.set(result.firstForm.id);
         this.currentFormName.set(result.firstForm.name);
         this.currentFormQuestions.set(result.firstForm.questions || []);
-        this.enabledFromServer.set(new Set(result.firstForm.enabledQuestionIds));
         this.step.set('filling');
       },
       error: (err) =>
@@ -158,6 +122,9 @@ export class FlowRunComponent implements OnInit {
             return;
           }
 
+          // Accumulate current answers into prior answers for cross-form rules
+          this.priorAnswers.update((prior) => ({ ...prior, ...this.answers() }));
+
           // Advance to next form
           const next = result.nextForm!;
           this.currentFormIndex.set(next.order);
@@ -166,7 +133,6 @@ export class FlowRunComponent implements OnInit {
           this.currentFormQuestions.set(
             (next.questions || []).sort((a, b) => a.order - b.order),
           );
-          this.enabledFromServer.set(new Set(next.enabledQuestionIds));
           this.answers.set({});
         },
         error: (err) =>
