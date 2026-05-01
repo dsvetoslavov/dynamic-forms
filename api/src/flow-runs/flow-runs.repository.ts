@@ -56,7 +56,11 @@ export class TypeOrmFlowRunsRepository implements FlowRunsRepository {
   async complete(flowRun: FlowRun): Promise<FlowRun> {
     flowRun.status = 'completed';
     flowRun.completedAt = new Date();
-    return this.flowRunsRepo.save(flowRun);
+    await this.flowRunsRepo.update(flowRun.id, {
+      status: flowRun.status,
+      completedAt: flowRun.completedAt,
+    });
+    return flowRun;
   }
 
   async createSubmission(data: DeepPartial<Submission>): Promise<Submission> {

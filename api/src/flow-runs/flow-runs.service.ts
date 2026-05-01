@@ -114,8 +114,20 @@ export class FlowRunsService {
       throw new BadRequestException('Form already submitted in this run');
     }
 
+    if (!body.answers?.length) {
+      throw new BadRequestException('Submission must include at least one answer');
+    }
+
     const flow = flowRun.flow;
     this.assertFormInFlow(flow, body.formId);
+
+    // Validate submitted form is the next expected form
+    const sortedForms = [...flow.flowForms].sort((a, b) => a.order - b.order);
+    const submittedFormIds = new Set((flowRun.submissions || []).map((s) => s.formId));
+    const expectedForm = sortedForms.find((ff) => !submittedFormIds.has(ff.formId));
+    if (!expectedForm || expectedForm.formId !== body.formId) {
+      throw new BadRequestException('Form is not the next expected form in this flow');
+    }
 
     const formQuestions = await this.formsRepo.findQuestionsByFormId(body.formId);
     const questionIds = formQuestions.map((q) => q.id);
@@ -150,9 +162,8 @@ export class FlowRunsService {
     });
 
     // Determine next form
-    const sortedForms = [...flow.flowForms].sort((a, b) => a.order - b.order);
-    const currentIndex = sortedForms.findIndex((ff) => ff.formId === body.formId);
-    const nextFlowForm = sortedForms[currentIndex + 1] ?? null;
+    submittedFormIds.add(body.formId);
+    const nextFlowForm = sortedForms.find((ff) => !submittedFormIds.has(ff.formId)) ?? null;
 
     if (!nextFlowForm) {
       await this.flowRunsRepo.complete(flowRun);

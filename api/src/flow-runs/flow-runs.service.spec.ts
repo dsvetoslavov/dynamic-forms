@@ -268,6 +268,122 @@ describe('FlowRunsService', () => {
       ).rejects.toThrow(UnprocessableEntityException);
     });
 
+    it('throws NotFoundException for invalid runId', async () => {
+      await expect(
+        service.submit('nonexistent', { formId: 'form-a', answers: [{ questionId: 'q1', value: 'hi' }] }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('rejects form not part of the flow', async () => {
+      const { flow } = makeFlow({ id: 'f1', forms: [{ formId: 'form-a', order: 1 }] });
+      flowsRepo.flows.push(flow);
+
+      const run = makeFlowRun(flow);
+      flowRunsRepo.flowRuns.push(run);
+
+      await expect(
+        service.submit(run.id, { formId: 'form-x', answers: [{ questionId: 'q1', value: 'hi' }] }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects submission with no answers', async () => {
+      const { flow } = makeFlow({ id: 'f1', forms: [{ formId: 'form-a', order: 1 }] });
+      flowsRepo.flows.push(flow);
+
+      const run = makeFlowRun(flow);
+      flowRunsRepo.flowRuns.push(run);
+
+      formsRepo.questions.push(makeQuestion({ id: 'q1', formId: 'form-a', order: 1 }));
+
+      await expect(
+        service.submit(run.id, { formId: 'form-a', answers: [] }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects submitting out-of-order form', async () => {
+      const { flow } = makeFlow({
+        id: 'f1',
+        forms: [{ formId: 'form-a', order: 1 }, { formId: 'form-b', order: 2 }],
+      });
+      flowsRepo.flows.push(flow);
+
+      const run = makeFlowRun(flow);
+      flowRunsRepo.flowRuns.push(run);
+
+      formsRepo.questions.push(makeQuestion({ id: 'q2', formId: 'form-b', order: 1 }));
+
+      await expect(
+        service.submit(run.id, { formId: 'form-b', answers: [{ questionId: 'q2', value: 'hi' }] }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('allows current answers to enable same-form questions via rules', async () => {
+      const { flow } = makeFlow({
+        id: 'f1',
+        forms: [{ formId: 'form-a', order: 1 }],
+        rules: [{ sourceQuestionId: 'q1', targetQuestionId: 'q2', triggerValue: 'yes' }],
+      });
+      flowsRepo.flows.push(flow);
+
+      const run = makeFlowRun(flow);
+      flowRunsRepo.flowRuns.push(run);
+
+      formsRepo.questions.push(
+        makeQuestion({ id: 'q1', formId: 'form-a', order: 1 }),
+        makeQuestion({ id: 'q2', formId: 'form-a', order: 2 }),
+      );
+
+      const result = await service.submit(run.id, {
+        formId: 'form-a',
+        answers: [{ questionId: 'q1', value: 'yes' }, { questionId: 'q2', value: 'enabled!' }],
+      });
+      expect(result.isComplete).toBe(true);
+    });
+
+    it('keeps next form target disabled when rule condition not met', async () => {
+      const { flow } = makeFlow({
+        id: 'f1',
+        forms: [{ formId: 'form-a', order: 1 }, { formId: 'form-b', order: 2 }],
+        rules: [{ sourceQuestionId: 'q1', targetQuestionId: 'q3', triggerValue: 'yes' }],
+      });
+      flowsRepo.flows.push(flow);
+
+      const run = makeFlowRun(flow);
+      flowRunsRepo.flowRuns.push(run);
+
+      formsRepo.questions.push(
+        makeQuestion({ id: 'q1', formId: 'form-a', order: 1 }),
+        makeQuestion({ id: 'q3', formId: 'form-b', order: 1 }),
+        makeQuestion({ id: 'q4', formId: 'form-b', order: 2 }),
+      );
+
+      const result = await service.submit(run.id, { formId: 'form-a', answers: [{ questionId: 'q1', value: 'no' }] });
+      expect(result.isComplete).toBe(false);
+      if (!result.isComplete) {
+        expect(result.nextForm.enabledQuestionIds).not.toContain('q3');
+        expect(result.nextForm.enabledQuestionIds).toContain('q4');
+      }
+    });
+
+    it('persists submission in the repository', async () => {
+      const { flow } = makeFlow({ id: 'f1', forms: [{ formId: 'form-a', order: 1 }, { formId: 'form-b', order: 2 }] });
+      flowsRepo.flows.push(flow);
+
+      const run = makeFlowRun(flow);
+      flowRunsRepo.flowRuns.push(run);
+
+      formsRepo.questions.push(
+        makeQuestion({ id: 'q1', formId: 'form-a', order: 1 }),
+        makeQuestion({ id: 'q2', formId: 'form-b', order: 1 }),
+      );
+
+      await service.submit(run.id, { formId: 'form-a', answers: [{ questionId: 'q1', value: 'saved' }] });
+
+      expect(flowRunsRepo.submissions).toHaveLength(1);
+      expect(flowRunsRepo.submissions[0].formId).toBe('form-a');
+      expect(flowRunsRepo.submissions[0].answers[0].value).toBe('saved');
+    });
+
     it('evaluates rules for next form using full answer context', async () => {
       const { flow } = makeFlow({
         id: 'f1',
