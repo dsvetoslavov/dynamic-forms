@@ -6,7 +6,6 @@ export interface Question {
   type: string;
   label: string;
   order: number;
-  required: boolean;
   config: Record<string, any>;
 }
 
@@ -23,10 +22,8 @@ export interface Rule {
   id: string;
   formId: string;
   sourceQuestionId: string;
-  operator: string;
   triggerValue: string;
   targetQuestionId: string;
-  action: string;
 }
 
 @Injectable({ providedIn: 'root' })

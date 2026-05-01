@@ -55,7 +55,6 @@ export class FormsService {
           type: q.type,
           label: q.label,
           order: q.order,
-          required: q.required ?? false,
           config: q.config ?? {},
           formId: id,
         });
@@ -76,7 +75,6 @@ export class FormsService {
       existing.type !== incoming.type ||
       existing.label !== incoming.label ||
       existing.order !== incoming.order ||
-      existing.required !== (incoming.required ?? false) ||
       JSON.stringify(existing.config) !== JSON.stringify(incoming.config ?? {})
     );
   }

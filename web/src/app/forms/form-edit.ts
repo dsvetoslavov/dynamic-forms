@@ -52,7 +52,7 @@ export class FormEditComponent implements OnInit {
   addQuestion() {
     this.questions.update((qs) => [
       ...qs,
-      { type: 'text', label: '', order: qs.length, required: false, config: {}, _idx: this.nextIdx++, optionsStr: '' },
+      { type: 'text', label: '', order: qs.length, config: {}, _idx: this.nextIdx++, optionsStr: '' },
     ]);
   }
 
@@ -66,7 +66,6 @@ export class FormEditComponent implements OnInit {
       type: q.type,
       label: q.label,
       order: i,
-      required: q.required,
       config: q.type === 'select' || q.type === 'multi_select'
         ? { options: q.optionsStr.split(',').map((s) => s.trim()).filter(Boolean) }
         : {},

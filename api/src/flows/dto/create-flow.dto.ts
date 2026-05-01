@@ -13,20 +13,12 @@ export class CreateRuleDto {
   @IsUUID()
   sourceQuestionId: string;
 
-  @IsOptional()
-  @IsString()
-  operator?: string;
-
   @IsString()
   @IsNotEmpty()
   triggerValue: string;
 
   @IsUUID()
   targetQuestionId: string;
-
-  @IsOptional()
-  @IsString()
-  actionType?: string;
 }
 
 export class CreateFlowDto {

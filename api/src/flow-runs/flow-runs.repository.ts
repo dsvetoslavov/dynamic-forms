@@ -34,6 +34,7 @@ export class TypeOrmFlowRunsRepository implements FlowRunsRepository {
   findOne(id: string): Promise<FlowRun | null> {
     return this.flowRunsRepo.findOne({
       where: { id },
+      withDeleted: true,
       relations: [
         'flow', 'flow.flowForms', 'flow.flowForms.form', 'flow.rules',
         'submissions', 'submissions.form', 'submissions.answers', 'submissions.answers.question',

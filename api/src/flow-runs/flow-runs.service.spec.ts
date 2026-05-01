@@ -15,7 +15,6 @@ function makeQuestion(overrides: Partial<Question> & { id: string; formId: strin
     type: QuestionType.TEXT,
     label: 'Q',
     order: 1,
-    required: false,
     config: {},
     createdAt: new Date(),
     deletedAt: null,
@@ -40,7 +39,6 @@ function makeFlow(opts: {
     Object.assign(new Rule(), {
       id: 'rule-' + Math.random().toString(36).slice(2, 8),
       flowId: opts.id,
-      operator: '=',
       actionType: 'enable_target',
       ...r,
     }),

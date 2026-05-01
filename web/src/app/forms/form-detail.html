@@ -20,7 +20,6 @@
             <th>#</th>
             <th>Label</th>
             <th>Type</th>
-            <th>Required</th>
             <th>Options</th>
           </tr>
         </thead>
@@ -30,7 +29,6 @@
               <td>{{ q.order + 1 }}</td>
               <td>{{ q.label }}</td>
               <td><span class="badge">{{ q.type }}</span></td>
-              <td>{{ q.required ? 'Yes' : '' }}</td>
               <td>{{ q.config?.['options']?.join(', ') || '-' }}</td>
             </tr>
           }

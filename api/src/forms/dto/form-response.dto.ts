@@ -5,9 +5,9 @@ export class QuestionResponseDto {
   type: QuestionType;
   label: string;
   order: number;
-  required: boolean;
   config: Record<string, any>;
   createdAt: Date;
+  deletedAt?: Date;
 }
 
 export class FormResponseDto {

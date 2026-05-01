@@ -31,9 +31,6 @@ export class Question {
   @Column()
   order: number;
 
-  @Column({ default: false })
-  required: boolean;
-
   @Column({ type: 'jsonb', default: {} })
   config: Record<string, any>;
 

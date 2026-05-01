@@ -22,17 +22,11 @@ export class Rule {
   @Column({ name: 'source_question_id' })
   sourceQuestionId: string;
 
-  @Column({ default: '=' })
-  operator: string;
-
   @Column({ name: 'trigger_value' })
   triggerValue: string;
 
   @Column({ name: 'target_question_id' })
   targetQuestionId: string;
-
-  @Column({ name: 'action_type', default: 'enable_target' })
-  actionType: string;
 
   @CreateDateColumn()
   createdAt: Date;

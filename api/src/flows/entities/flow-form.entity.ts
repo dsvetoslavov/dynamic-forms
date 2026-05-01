@@ -4,11 +4,13 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { Flow } from './flow.entity';
 import { Form } from '../../forms/entities/form.entity';
 
 @Entity('flow_forms')
+@Unique('UQ_FORM_FLOW_ORDER', ['flowId', 'formId', 'order'])
 export class FlowForm {
   @PrimaryColumn({ name: 'flow_id' })
   flowId: string;

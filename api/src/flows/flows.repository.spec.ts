@@ -65,10 +65,8 @@ describe('TypeOrmFlowsRepository', () => {
         [
           {
             sourceQuestionId: formA.questions[0].id,
-            operator: '=',
             triggerValue: 'yes',
             targetQuestionId: formB.questions[0].id,
-            actionType: 'enable_target',
           },
         ],
       );
@@ -120,10 +118,8 @@ describe('TypeOrmFlowsRepository', () => {
         [
           {
             sourceQuestionId: formA.questions[0].id,
-            operator: '=',
             triggerValue: 'old',
             targetQuestionId: formA.questions[0].id,
-            actionType: 'enable_target',
           },
         ],
       );
@@ -140,10 +136,8 @@ describe('TypeOrmFlowsRepository', () => {
         [
           {
             sourceQuestionId: formA.questions[0].id,
-            operator: '=',
             triggerValue: 'new',
             targetQuestionId: formB.questions[0].id,
-            actionType: 'enable_target',
           },
         ],
       );
@@ -203,10 +197,8 @@ describe('TypeOrmFlowsRepository', () => {
         [
           {
             sourceQuestionId: formA.questions[0].id,
-            operator: '=',
             triggerValue: 'yes',
             targetQuestionId: formB.questions[0].id,
-            actionType: 'enable_target',
           },
         ],
       );

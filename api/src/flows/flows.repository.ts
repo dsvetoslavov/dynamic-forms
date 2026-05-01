@@ -9,10 +9,8 @@ export const FLOWS_REPOSITORY = Symbol('FLOWS_REPOSITORY');
 
 export interface RuleData {
   sourceQuestionId: string;
-  operator: string;
   triggerValue: string;
   targetQuestionId: string;
-  actionType: string;
 }
 
 export interface FlowsRepository {

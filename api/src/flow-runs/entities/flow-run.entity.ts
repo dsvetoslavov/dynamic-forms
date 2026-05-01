@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { Flow } from '../../flows/entities/flow.entity';
 import { Submission } from './submission.entity';

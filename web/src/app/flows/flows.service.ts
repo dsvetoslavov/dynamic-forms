@@ -19,10 +19,8 @@ export interface FlowForm {
 export interface FlowRule {
   id: string;
   sourceQuestionId: string;
-  operator: string;
   triggerValue: string;
   targetQuestionId: string;
-  actionType: string;
 }
 
 export interface FlowDetail extends FlowSummary {
@@ -107,6 +105,7 @@ export interface FlowRunAnswer {
   questionId: string;
   value: string;
   questionLabel: string;
+  deletedAt?: string;
 }
 
 export interface FlowRunState {

@@ -23,7 +23,6 @@ function toFormResponse(form: Form): FormResponseDto {
       type: q.type,
       label: q.label,
       order: q.order,
-      required: q.required,
       config: q.config,
       createdAt: q.createdAt,
     })) ?? [],

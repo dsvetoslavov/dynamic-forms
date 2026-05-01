@@ -31,9 +31,6 @@
               <option value="number">Number</option>
             </select>
           </div>
-          <label style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
-            <input type="checkbox" [(ngModel)]="q.required" /> Req
-          </label>
           <button class="btn sm danger" (click)="removeQuestion(i)">X</button>
         </div>
         @if (q.type === 'select' || q.type === 'multi_select') {

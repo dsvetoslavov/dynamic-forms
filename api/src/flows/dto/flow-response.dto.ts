@@ -8,10 +8,8 @@ export class RuleResponseDto {
   id: string;
   flowId: string;
   sourceQuestionId: string;
-  operator: string;
   triggerValue: string;
   targetQuestionId: string;
-  actionType: string;
   createdAt: Date;
   updatedAt: Date;
 }

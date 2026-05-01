@@ -34,7 +34,6 @@ erDiagram
         string type
         string label
         int order
-        bool required
         jsonb config
         timestamp created_at
         timestamp updated_at
@@ -45,10 +44,8 @@ erDiagram
         uuid id PK
         uuid flow_id FK
         uuid source_question_id FK
-        string operator
         jsonb trigger_value
         uuid target_question_id FK
-        string action_type
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at

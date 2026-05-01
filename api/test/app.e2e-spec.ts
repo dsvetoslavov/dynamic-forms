@@ -44,7 +44,6 @@ describe('Dynamic Forms API (e2e)', () => {
             type: 'text',
             label: 'Full name',
             order: 0,
-            required: true,
             config: { placeholder: 'Enter your name' },
           },
           {
@@ -113,7 +112,6 @@ describe('Dynamic Forms API (e2e)', () => {
       .post(`/forms/${formId}/rules`)
       .send({
         sourceQuestionId: questionIds['Are you a manager?'],
-        operator: '=',
         triggerValue: 'true',
         targetQuestionId: questionIds['Team size'],
         action: 'enable',

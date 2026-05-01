@@ -29,10 +29,6 @@ export class UpdateQuestionDto {
   order: number;
 
   @IsOptional()
-  @IsBoolean()
-  required?: boolean;
-
-  @IsOptional()
   @IsObject()
   config?: Record<string, any>;
 }

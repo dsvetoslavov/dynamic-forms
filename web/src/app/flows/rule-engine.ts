@@ -32,9 +32,5 @@ export function evaluateRules(
 }
 
 function ruleMatches(rule: FlowRule, answer: string): boolean {
-  if (rule.operator === '=') {
-    return answer.toLowerCase() === rule.triggerValue.toLowerCase();
-  }
-  // default: contains (for multi-select comma-separated values)
   return answer.toLowerCase().includes(rule.triggerValue.toLowerCase());
 }

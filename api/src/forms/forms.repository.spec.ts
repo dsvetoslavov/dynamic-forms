@@ -41,8 +41,8 @@ describe('TypeOrmFormsRepository', () => {
         name: 'Test Form',
         description: 'A test',
         questions: [
-          { type: QuestionType.TEXT, label: 'Name', order: 0, required: true, config: {} },
-          { type: QuestionType.NUMBER, label: 'Age', order: 1, required: false, config: { min: 0 } },
+          { type: QuestionType.TEXT, label: 'Name', order: 0, config: {} },
+          { type: QuestionType.NUMBER, label: 'Age', order: 1, config: { min: 0 } },
         ],
       });
 

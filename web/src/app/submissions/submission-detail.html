@@ -31,7 +31,14 @@
           <tbody>
             @for (a of sub.answers; track a.id) {
               <tr>
-                <td>{{ a.questionLabel }}</td>
+                <td>
+                  {{ a.questionLabel }}
+                  @if (!!a.deletedAt) {
+                    <span>
+                      (deleted)
+                    </span>
+                  }
+                </td>
                 <td>{{ a.value }}</td>
               </tr>
             }

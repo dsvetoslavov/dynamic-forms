@@ -6,7 +6,6 @@ function makeRule(overrides: Partial<Rule>): Rule {
     id: 'rule-1',
     flowId: 'flow-1',
     sourceQuestionId: 'src-q1',
-    operator: '=',
     triggerValue: 'yes',
     targetQuestionId: 'tgt-q1',
     actionType: 'enable_target',
@@ -50,7 +49,6 @@ describe('evaluateRules', () => {
       makeRule({
         sourceQuestionId: 'q1',
         targetQuestionId: 'q2',
-        operator: 'contains',
         triggerValue: 'red',
       }),
     ];

@@ -33,7 +33,7 @@ export class FlowsService {
     name: string;
     description?: string;
     formIds: string[];
-    rules?: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[];
+    rules?: { sourceQuestionId: string; triggerValue: string; targetQuestionId: string; }[];
   }): Promise<Flow> {
     const formOrderMap = await this.validateForms(data.formIds);
 
@@ -56,7 +56,7 @@ export class FlowsService {
       name?: string;
       description?: string;
       formIds: string[];
-      rules?: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[];
+      rules?: { sourceQuestionId: string; triggerValue: string; targetQuestionId: string; }[];
     },
   ): Promise<Flow> {
     const existing = await this.flowsRepo.findOne(id);
@@ -102,7 +102,7 @@ export class FlowsService {
   }
 
   private async validateRules(
-    rules: { sourceQuestionId: string; operator?: string; triggerValue: string; targetQuestionId: string; actionType?: string }[],
+    rules: { sourceQuestionId: string; triggerValue: string; targetQuestionId: string; }[],
     formOrderMap: Map<string, number>,
   ): Promise<RuleData[]> {
     try {
@@ -162,10 +162,8 @@ export class FlowsService {
 
     return rules.map((r) => ({
       sourceQuestionId: r.sourceQuestionId,
-      operator: r.operator || '=',
       triggerValue: r.triggerValue,
       targetQuestionId: r.targetQuestionId,
-      actionType: r.actionType || 'enable_target',
     }));
   }
 }

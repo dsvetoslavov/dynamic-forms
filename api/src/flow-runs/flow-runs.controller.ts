@@ -49,7 +49,6 @@ export class FlowRunsController {
           type: q.type,
           label: q.label,
           order: q.order,
-          required: q.required,
           config: q.config,
           createdAt: q.createdAt,
         })),
@@ -71,7 +70,6 @@ export class FlowRunsController {
         type: q.type,
         label: q.label,
         order: q.order,
-        required: q.required,
         config: q.config,
         createdAt: q.createdAt,
       })),
@@ -102,6 +100,7 @@ export class FlowRunsController {
             questionId: a.questionId,
             value: a.value,
             questionLabel: a.question?.label ?? a.questionId,
+            deletedAt: a.question.deletedAt
           })),
         })),
     };
@@ -130,7 +129,6 @@ export class FlowRunsController {
           type: q.type,
           label: q.label,
           order: q.order,
-          required: q.required,
           config: q.config,
           createdAt: q.createdAt,
         })),
