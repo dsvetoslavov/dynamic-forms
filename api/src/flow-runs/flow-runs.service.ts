@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { FlowRun } from './entities/flow-run.entity';
@@ -29,13 +30,24 @@ export class FlowRunsService {
     @Inject(FORMS_REPOSITORY) private formsRepo: FormsRepository,
   ) {}
 
-  async create(flowId: string, username: string) {
-    const flow = await this.flowsRepo.findOne(flowId);
-    if (!flow) throw new NotFoundException('Flow not found');
+  async findAll() {
+    return this.flowRunsRepo.findAll();
+  }
 
+  async findOne(runId: string) {
+    return this.loadFlowRun(runId);
+  }
+
+  async create(flowId: string, username: string) {
+    const existing = await this.flowRunsRepo.findByFlowAndUsername(flowId, username);
+    if (existing) {
+      throw new ConflictException('User already has an in-progress run for this flow');
+    }
+
+    const flow = await this.loadFlow(flowId);
     const flowRun = await this.flowRunsRepo.create({ flowId, username });
 
-    const sortedForms = flow.flowForms.sort((a, b) => a.order - b.order);
+    const sortedForms = [...flow.flowForms].sort((a, b) => a.order - b.order);
     const firstFlowForm = sortedForms[0];
     if (!firstFlowForm) {
       throw new BadRequestException('Flow has no forms');
@@ -62,12 +74,19 @@ export class FlowRunsService {
     const flow = await this.loadFlow(flowRun.flowId);
 
     // Determine current form (next unsubmitted form in the flow)
-    const sortedForms = flow.flowForms.sort((a, b) => a.order - b.order);
+    const sortedForms = [...flow.flowForms].sort((a, b) => a.order - b.order);
     const submittedFormIds = new Set(flowRun.submissions.map((s) => s.formId));
     const currentFlowForm = sortedForms.find((ff) => !submittedFormIds.has(ff.formId));
 
     if (!currentFlowForm) {
-      return { formId: null, enabledQuestionIds: [] };
+      return {
+        username: flowRun.username,
+        formId: null,
+        formName: null,
+        formOrder: 0,
+        questions: [],
+        enabledQuestionIds: [],
+      };
     }
 
     const questions = await this.formsRepo.findQuestionsByFormId(currentFlowForm.formId);
@@ -75,13 +94,25 @@ export class FlowRunsService {
     const answerContext = this.buildAnswerContext(flowRun);
     const enabled = evaluateRules(flow.rules, answerContext, allQuestionIds);
 
-    return { formId: currentFlowForm.formId, enabledQuestionIds: [...enabled] };
+    return {
+      username: flowRun.username,
+      formId: currentFlowForm.formId,
+      formName: currentFlowForm.form?.name ?? currentFlowForm.formId,
+      formOrder: currentFlowForm.order,
+      questions: questions.sort((a, b) => a.order - b.order),
+      enabledQuestionIds: [...enabled],
+    };
   }
 
   async submit(runId: string, body: SubmitFlowRunDto) {
     const flowRun = await this.loadFlowRun(runId);
     if (flowRun.status === 'completed') {
       throw new BadRequestException('Flow run is already completed');
+    }
+
+    const alreadySubmitted = (flowRun.submissions || []).some((s) => s.formId === body.formId);
+    if (alreadySubmitted) {
+      throw new BadRequestException('Form already submitted in this run');
     }
 
     const flow = await this.loadFlow(flowRun.flowId);
@@ -120,7 +151,7 @@ export class FlowRunsService {
     });
 
     // Determine next form
-    const sortedForms = flow.flowForms.sort((a, b) => a.order - b.order);
+    const sortedForms = [...flow.flowForms].sort((a, b) => a.order - b.order);
     const currentIndex = sortedForms.findIndex((ff) => ff.formId === body.formId);
     const nextFlowForm = sortedForms[currentIndex + 1] ?? null;
 

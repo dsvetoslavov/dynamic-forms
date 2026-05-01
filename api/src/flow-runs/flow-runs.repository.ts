@@ -7,6 +7,7 @@ import { Submission } from './entities/submission.entity';
 export const FLOW_RUNS_REPOSITORY = Symbol('FLOW_RUNS_REPOSITORY');
 
 export interface FlowRunsRepository {
+  findAll(): Promise<FlowRun[]>;
   findOne(id: string): Promise<FlowRun | null>;
   findByFlowAndUsername(flowId: string, username: string): Promise<FlowRun | null>;
   create(data: { flowId: string; username: string }): Promise<FlowRun>;
@@ -23,10 +24,17 @@ export class TypeOrmFlowRunsRepository implements FlowRunsRepository {
     private submissionsRepo: Repository<Submission>,
   ) {}
 
+  findAll(): Promise<FlowRun[]> {
+    return this.flowRunsRepo.find({
+      relations: ['flow', 'submissions'],
+      order: { startedAt: 'DESC' },
+    });
+  }
+
   findOne(id: string): Promise<FlowRun | null> {
     return this.flowRunsRepo.findOne({
       where: { id },
-      relations: ['submissions', 'submissions.answers'],
+      relations: ['flow', 'submissions', 'submissions.form', 'submissions.answers', 'submissions.answers.question'],
     });
   }
 

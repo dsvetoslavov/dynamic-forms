@@ -4,26 +4,35 @@
     <a routerLink="/forms" class="btn">Back to Forms</a>
   </div>
 
-  @if (submissions().length === 0) {
-    <div class="card empty">No submissions yet.</div>
+  @if (runs().length === 0) {
+    <div class="card empty">No flow runs yet.</div>
   } @else {
     <table>
       <thead>
         <tr>
+          <th>Flow</th>
           <th>Username</th>
-          <th>Answers</th>
-          <th>Submitted</th>
+          <th>Status</th>
+          <th>Submissions</th>
+          <th>Started</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        @for (sub of submissions(); track sub.id) {
+        @for (run of runs(); track run.id) {
           <tr>
-            <td>{{ sub.username }}</td>
-            <td>{{ sub.answers?.length || 0 }}</td>
-            <td>{{ sub.submittedAt | date }}</td>
+            <td>{{ run.flowName }}</td>
+            <td>{{ run.username }}</td>
+            <td>{{ run.status }}</td>
+            <td>{{ run.submissionCount }}</td>
+            <td>{{ run.startedAt | date }}</td>
             <td class="actions">
-              <a [routerLink]="['/submissions', sub.id]" class="btn sm primary">Details</a>
+              @if (run.status === 'in_progress') {
+                <a [routerLink]="['/flows', run.flowId, 'run']"
+                   [queryParams]="{runId: run.id}"
+                   class="btn sm">Continue</a>
+              }
+              <a [routerLink]="['/submissions', run.id]" class="btn sm primary">Details</a>
             </td>
           </tr>
         }

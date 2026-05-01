@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { FormsService, Submission } from '../forms/forms.service';
+import { FlowsService, FlowRunSummary } from '../flows/flows.service';
 
 @Component({
   selector: 'app-submission-list',
@@ -9,10 +9,10 @@ import { FormsService, Submission } from '../forms/forms.service';
   templateUrl: './submission-list.html',
 })
 export class SubmissionListComponent implements OnInit {
-  private svc = inject(FormsService);
-  submissions = signal<Submission[]>([]);
+  private svc = inject(FlowsService);
+  runs = signal<FlowRunSummary[]>([]);
 
   ngOnInit() {
-    this.svc.listSubmissions().subscribe((s) => this.submissions.set(s));
+    this.svc.listFlowRuns().subscribe((r) => this.runs.set(r));
   }
 }

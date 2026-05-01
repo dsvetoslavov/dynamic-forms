@@ -44,8 +44,20 @@ export interface FlowPayload {
   rules?: { sourceQuestionId: string; triggerValue: string; targetQuestionId: string }[];
 }
 
-export interface FormState {
-  enabledQuestionIds: string[];
+export interface FlowRunResponse {
+  id: string;
+  flowId: string;
+  username: string;
+  status: string;
+  startedAt: string;
+  completedAt: string | null;
+  firstForm: {
+    id: string;
+    name: string;
+    order: number;
+    questions: Question[];
+    enabledQuestionIds: string[];
+  };
 }
 
 export interface SubmitResult {
@@ -58,6 +70,52 @@ export interface SubmitResult {
     questions: Question[];
     enabledQuestionIds: string[];
   };
+}
+
+export interface FlowRunSummary {
+  id: string;
+  flowId: string;
+  flowName: string;
+  username: string;
+  status: string;
+  startedAt: string;
+  completedAt: string | null;
+  submissionCount: number;
+}
+
+export interface FlowRunDetail {
+  id: string;
+  flowId: string;
+  flowName: string;
+  username: string;
+  status: string;
+  startedAt: string;
+  completedAt: string | null;
+  submissions: FlowRunSubmission[];
+}
+
+export interface FlowRunSubmission {
+  id: string;
+  formId: string;
+  formName: string;
+  submittedAt: string;
+  answers: FlowRunAnswer[];
+}
+
+export interface FlowRunAnswer {
+  id: string;
+  questionId: string;
+  value: string;
+  questionLabel: string;
+}
+
+export interface FlowRunState {
+  username: string;
+  formId: string | null;
+  formName: string | null;
+  formOrder: number;
+  questions: Question[];
+  enabledQuestionIds: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -84,17 +142,23 @@ export class FlowsService {
     return this.http.delete(`/api/flows/${id}`);
   }
 
-  getFormState(flowId: string, formId: string, username: string) {
-    return this.http.get<FormState>(
-      `/api/flows/${flowId}/forms/${formId}/state`,
-      { params: { username } },
-    );
+  createFlowRun(flowId: string, username: string) {
+    return this.http.post<FlowRunResponse>('/api/flow-runs', { flowId, username });
   }
 
-  submitForm(
-    flowId: string,
-    body: { formId: string; username: string; answers: { questionId: string; value: string }[] },
-  ) {
-    return this.http.post<SubmitResult>(`/api/flows/${flowId}/submissions`, body);
+  submitFlowRunForm(runId: string, formId: string, answers: { questionId: string; value: string }[]) {
+    return this.http.post<SubmitResult>(`/api/flow-runs/${runId}/submissions`, { formId, answers });
+  }
+
+  listFlowRuns() {
+    return this.http.get<FlowRunSummary[]>('/api/flow-runs');
+  }
+
+  getFlowRun(runId: string) {
+    return this.http.get<FlowRunDetail>(`/api/flow-runs/${runId}`);
+  }
+
+  getFlowRunState(runId: string) {
+    return this.http.get<FlowRunState>(`/api/flow-runs/${runId}/state`);
   }
 }

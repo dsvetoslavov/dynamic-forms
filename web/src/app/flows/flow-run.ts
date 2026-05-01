@@ -1,9 +1,8 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
 import { FlowsService, FlowDetail, FlowRule } from './flows.service';
-import { FormsService, Question } from '../forms/forms.service';
+import { Question } from '../forms/forms.service';
 
 @Component({
   selector: 'app-flow-run',
@@ -12,7 +11,6 @@ import { FormsService, Question } from '../forms/forms.service';
 })
 export class FlowRunComponent implements OnInit {
   private flowsSvc = inject(FlowsService);
-  private formsSvc = inject(FormsService);
   private route = inject(ActivatedRoute);
 
   flow = signal<FlowDetail | null>(null);
@@ -25,6 +23,9 @@ export class FlowRunComponent implements OnInit {
   currentFormQuestions = signal<Question[]>([]);
   currentFormName = signal('');
   currentFormId = signal('');
+
+  // Flow run tracking
+  runId = signal('');
 
   // All forms' questions (for rule source lookup)
   allRules = signal<FlowRule[]>([]);
@@ -86,6 +87,33 @@ export class FlowRunComponent implements OnInit {
     this.flowsSvc.get(flowId).subscribe((flow) => {
       this.flow.set(flow);
       this.allRules.set(flow.rules);
+
+      // Resume existing run if runId query param is present
+      const resumeRunId = this.route.snapshot.queryParamMap.get('runId');
+      if (resumeRunId) {
+        this.resumeRun(resumeRunId);
+      }
+    });
+  }
+
+  private resumeRun(runId: string) {
+    this.flowsSvc.getFlowRunState(runId).subscribe({
+      next: (state) => {
+        if (!state.formId) {
+          this.step.set('complete');
+          return;
+        }
+        this.runId.set(runId);
+        this.username = state.username;
+        this.currentFormIndex.set(state.formOrder);
+        this.currentFormId.set(state.formId);
+        this.currentFormName.set(state.formName ?? '');
+        this.currentFormQuestions.set(state.questions || []);
+        this.enabledFromServer.set(new Set(state.enabledQuestionIds));
+        this.step.set('filling');
+      },
+      error: (err) =>
+        this.error.set(err?.error?.message || 'Failed to resume flow.'),
     });
   }
 
@@ -97,25 +125,15 @@ export class FlowRunComponent implements OnInit {
     this.error.set('');
 
     const flow = this.flow()!;
-    const sortedForms = [...flow.forms].sort((a, b) => a.order - b.order);
-    const first = sortedForms[0];
-    if (!first) {
-      this.error.set('This flow has no forms.');
-      return;
-    }
 
-    this.currentFormIndex.set(0);
-    this.currentFormId.set(first.id);
-    this.currentFormName.set(first.name);
-
-    // Load questions for first form + get enabled state
-    forkJoin([
-      this.formsSvc.get(first.id),
-      this.flowsSvc.getFormState(flow.id, first.id, this.username),
-    ]).subscribe({
-      next: ([form, state]) => {
-        this.currentFormQuestions.set(form.questions || []);
-        this.enabledFromServer.set(new Set(state.enabledQuestionIds));
+    this.flowsSvc.createFlowRun(flow.id, this.username).subscribe({
+      next: (result) => {
+        this.runId.set(result.id);
+        this.currentFormIndex.set(result.firstForm.order);
+        this.currentFormId.set(result.firstForm.id);
+        this.currentFormName.set(result.firstForm.name);
+        this.currentFormQuestions.set(result.firstForm.questions || []);
+        this.enabledFromServer.set(new Set(result.firstForm.enabledQuestionIds));
         this.step.set('filling');
       },
       error: (err) =>
@@ -125,7 +143,6 @@ export class FlowRunComponent implements OnInit {
 
   submitCurrentForm() {
     this.error.set('');
-    const flow = this.flow()!;
     const visible = this.visibleQuestions();
     const answers = this.answers();
     const answerList = visible
@@ -133,11 +150,7 @@ export class FlowRunComponent implements OnInit {
       .map((q) => ({ questionId: q.id!, value: answers[q.id!] }));
 
     this.flowsSvc
-      .submitForm(flow.id, {
-        formId: this.currentFormId(),
-        username: this.username,
-        answers: answerList,
-      })
+      .submitFlowRunForm(this.runId(), this.currentFormId(), answerList)
       .subscribe({
         next: (result) => {
           if (result.isComplete) {
@@ -147,7 +160,7 @@ export class FlowRunComponent implements OnInit {
 
           // Advance to next form
           const next = result.nextForm!;
-          this.currentFormIndex.update((i) => i + 1);
+          this.currentFormIndex.set(next.order);
           this.currentFormId.set(next.id);
           this.currentFormName.set(next.name);
           this.currentFormQuestions.set(

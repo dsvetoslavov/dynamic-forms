@@ -29,21 +29,6 @@ export interface Rule {
   action: string;
 }
 
-export interface SubmissionAnswer {
-  id: string;
-  questionId: string;
-  value: string;
-  question?: Question;
-}
-
-export interface Submission {
-  id: string;
-  formId: string;
-  username: string;
-  submittedAt: string;
-  answers: SubmissionAnswer[];
-}
-
 @Injectable({ providedIn: 'root' })
 export class FormsService {
   private http = inject(HttpClient);
@@ -80,11 +65,4 @@ export class FormsService {
     return this.http.delete(`/api/forms/${formId}/rules/${ruleId}`);
   }
 
-  listSubmissions() {
-    return this.http.get<Submission[]>('/api/submissions');
-  }
-
-  getSubmission(id: string) {
-    return this.http.get<Submission>(`/api/submissions/${id}`);
-  }
 }
