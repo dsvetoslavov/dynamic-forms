@@ -41,7 +41,9 @@ export class FlowRunComponent implements OnInit {
     const sorted = [...questions].sort((a, b) => a.order - b.order);
     const currentQIds = questions.map((q) => q.id!);
     const answerContext = { ...this.priorAnswers(), ...this.answers() };
-    const enabled = evaluateRules(this.allRules(), answerContext, currentQIds);
+    const allRules = this.allRules()
+    const interformRules = allRules.filter(r => this.currentFormQuestions().map(q => q.id).filter(q => !!q).includes(r.sourceQuestionId));
+    const enabled = evaluateRules(interformRules, answerContext, currentQIds);
 
     return sorted.filter((q) => enabled.has(q.id!));
   });
