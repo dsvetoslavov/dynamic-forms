@@ -51,7 +51,7 @@ erDiagram
     FLOW ||--o{ FLOW_RUN : sessions
     FLOW_FORM }o--|| FORM : references
     RULE }o--|| QUESTION : "source question"
-    RULE }o--|| QUESTION : "target question
+    RULE }o--|| QUESTION : "target question"
     FLOW_RUN ||--o{ SUBMISSION : collects
     SUBMISSION }o--|| FORM : "for form"
     SUBMISSION ||--o{ ANSWER : contains
@@ -75,7 +75,7 @@ erDiagram
         jsonb config
         timestamp createdAt
         timestamp deletedAt
- w    }
+     }
 
     FLOW {
         uuid id PK
